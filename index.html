@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutoring Courses</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/vue@2.7.8/dist/vue.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div class="site-name" v-text="sitename"></div>
+            <nav>
+                <ul>
+                    <li>
+                        <button v-on:click="showCheckoutModal">
+                            {{ cartItemCount }} <span class="fas fa-cart-plus"></span> Checkout
+                        </button>
+                    </li>
+                    <li><button v-on:click="showLoginModal">Log In</button></li>
+                    <li><button v-on:click="showSignupModal">Sign Up</button></li>
+                </ul>
+            </nav>
+        </header>
+        <main>
+            <div class="content" v-if="!showCheckoutOptions">
+                <section class="course-section" v-for="course in courses" :key="course.id">
+                    <figure>
+                        <img v-bind:src="course.image" alt="Course Image" />
+                    </figure>
+                    <h2 v-text="course.title"></h2>
+                    <p v-text="course.description"></p>
+                    <p>Price: ${{ course.price }}</p>
+                    <p>Teacher: {{ course.teacher }}</p>
+                    <button v-on:click="addToCart(course)" v-if="course.availableSeats > 0">Add to Cart</button>
+                    <button disabled v-else>Out of stock</button>
+                </section>
+            </div>
+
+            <!-- Checkout Modal -->
+            <div v-if="showCheckoutOptions" class="modal">
+                <div class="modal-content">
+                    <span class="close" v-on:click="closeCheckoutModal">&times;</span>
+                    <h2>Checkout</h2>
+                    <p>
+                        <strong>Firstname: </strong>
+                        <input v-model.trim="order.firstName" />
+                    </p>
+                    <p>
+                        <strong>Lastname: </strong>
+                        <input v-model.trim="order.lastName" />
+                    </p>
+                    <p>
+                        <strong>Address: </strong> 
+                        <input v-model.trim="order.address" />
+                    </p>
+                    <p>
+                        <strong>City: </strong> 
+                        <input v-model.trim="order.city" />
+                    </p>
+                    <p>
+                        <strong>State: </strong>
+                        <select v-model="order.state">
+                            <option disabled value="">State</option>
+                            <option v-for="(state, key) in states" v-bind:value="key">
+                                {{ state }}
+                            </option>
+                        </select>
+                    </p>
+                    <p>
+                        <strong>Zip/Postal Code: </strong> <input v-model.number="order.zip" />
+                    </p>
+                    <p>
+                        <input type="checkbox" id="gift" v-model="order.gift" />
+                        <label for="gift">Ship As Gift?</label>
+                    </p>
+                    <p>
+                        <input type="radio" id="home" value="Home" v-model="order.method" />
+                        <label for="home">Home</label>
+                        <input type="radio" id="business" value="Business" v-model="order.method" />
+                        <label for="business">Business</label>
+                    </p>
+                    <h2>Order Information</h2>
+                    <p>Firstname: {{ order.firstName }}</p>
+                    <p>Lastname: {{ order.lastName }}</p>
+                    <p>Address: {{ order.address }}</p>
+                    <p>City: {{ order.city }}</p>
+                    <p>Zip: {{ order.zip }}</p>
+                    <p>State: {{ order.state }}</p>
+                    <button v-on:click="submitForm">Place Order</button>
+                </div>
+            </div>
+
+            <!-- Modal for Login -->
+            <div v-if="showLogin" class="modal">
+                <div class="modal-content">
+                    <span class="close" v-on:click="showLogin = false">&times;</span>
+                    <h2>Log In</h2>
+                    <input type="text" placeholder="Email" v-model="loginEmail" />
+                    <input type="password" placeholder="Password" v-model="loginPassword" />
+                    <button v-on:click="login">Log In</button>
+                </div>
+            </div>
+
+            <!-- Modal for Sign Up -->
+            <div v-if="showSignup" class="modal">
+                <div class="modal-content">
+                    <span class="close" v-on:click="showSignup = false">&times;</span>
+                    <h2>Sign Up</h2>
+                    <input type="text" placeholder="Username" v-model="signupUsername" />
+                    <input type="text" placeholder="Email" v-model="signupEmail" />
+                    <input type="password" placeholder="Password" v-model="signupPassword" />
+                    <button v-on:click="signup">Sign Up</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="text/javascript">
+        let webstore = new Vue({
+            el: '#app',
+            data: {
+                sitename: 'Extra Tuition Courses',
+                courses: [
+                    { id: 2001, title: "Mathematics Tutoring", description: "Intensive math tutoring for all levels.", price: 50, image: "https://via.placeholder.com/150", availableSeats: 10, teacher: "Mr. Smith" },
+                    { id: 2002, title: "Science Classes", description: "Engaging science classes for high school students.", price: 60, image: "https://via.placeholder.com/150", availableSeats: 5, teacher: "Ms. Johnson" },
+                    { id: 2003, title: "English Language Arts", description: "Improving reading and writing skills.", price: 55, image: "https://via.placeholder.com/150", availableSeats: 0, teacher: "Dr. Brown" },
+                    { id: 2004, title: "History Lessons", description: "Explore the past through interactive lessons.", price: 45, image: "https://via.placeholder.com/150", availableSeats: 8, teacher: "Mrs. Davis" },
+                    { id: 2005, title: "Computer Science Basics", description: "Introduction to coding and computer science.", price: 70, image: "https://via.placeholder.com/150", availableSeats: 6, teacher: "Ms. Miller" },
+                    { id: 2006, title: "Art & Creativity", description: "Unleash your creativity in art classes.", price: 40, image: "https://via.placeholder.com/150", availableSeats: 12, teacher: "Mr. Wilson" },
+                    { id: 2007, title: "Physics for Beginners", description: "Understanding the fundamentals of physics.", price: 65, image: "https://via.placeholder.com/150", availableSeats: 4, teacher: "Mr. Taylor" },
+                    { id: 2008, title: "Advanced Calculus", description: "In-depth calculus for advanced students.", price: 80, image: "https://via.placeholder.com/150", availableSeats: 3, teacher: "Ms. Anderson" },
+                    { id: 2009, title: "Chemistry Fundamentals", description: "Basic concepts and principles of chemistry.", price: 55, image: "https://via.placeholder.com/150", availableSeats: 10, teacher: "Dr. Jackson" },
+                    { id: 2010, title: "Creative Writing Workshop", description: "Enhance your writing skills through workshops.", price: 50, image: "https://via.placeholder.com/150", availableSeats: 15, teacher: "Ms. White" },
+                    { id: 2011, title: "SAT Preparation", description: "Prepare for the SAT with expert guidance.", price: 120, image: "https://via.placeholder.com/150", availableSeats: 5, teacher: "Mr. Harris" },
+                    { id: 2012, title: "Spanish Language Course", description: "Learn Spanish from beginner to advanced levels.", price: 60, image: "https://via.placeholder.com/150", availableSeats: 7, teacher: "Ms. Clark" },
+                    { id: 2013, title: "Public Speaking Skills", description: "Build confidence in public speaking.", price: 40, image: "https://via.placeholder.com/150", availableSeats: 8, teacher: "Mr. Lewis" },
+                    { id: 2014, title: "Digital Marketing Basics", description: "Learn the fundamentals of digital marketing.", price: 75, image: "https://via.placeholder.com/150", availableSeats: 10, teacher: "Ms. Young" },
+                    { id: 2015, title: "Photography for Beginners", description: "Master the basics of photography.", price: 55, image: "https://via.placeholder.com/150", availableSeats: 12, teacher: "Mr. Walker" },
+                    { id: 2016, title: "Introduction to Graphic Design", description: "Get started with graphic design techniques.", price: 65, image: "https://via.placeholder.com/150", availableSeats: 4, teacher: "Ms. Hall" },
+                    { id: 2017, title: "Music Theory Basics", description: "Learn the fundamentals of music theory.", price: 50, image: "https://via.placeholder.com/150", availableSeats: 10, teacher: "Mr. Allen" },
+                    { id: 2018, title: "Personal Finance Management", description: "Manage your finances effectively.", price: 70, image: "https://via.placeholder.com/150", availableSeats: 6, teacher: "Ms. King" },
+                    { id: 2019, title: "Introduction to Yoga", description: "Learn the basics of yoga practice.", price: 40, image: "https://via.placeholder.com/150", availableSeats: 12, teacher: "Mr. Wright" },
+                    { id: 2020, title: "Web Development Bootcamp", description: "Learn web development from scratch.", price: 150, image: "https://via.placeholder.com/150", availableSeats: 5, teacher: "Ms. Scott" }
+                ],
+
+                cart: [],
+                showLogin: false,
+                showSignup: false,
+                loginEmail: '',
+                loginPassword: '',
+                signupUsername: '',
+                signupEmail: '',
+                signupPassword: '',
+                showCheckoutOptions: false,
+                order: {
+                    firstName: "",
+                    lastName: "",
+                    address: "",
+                    city: "",
+                    state: "",
+                    zip: "",
+                    method: "Home",
+                    gift: false
+                },
+                states: {
+                    AL: "Alabama",
+                    AR: "Arizona",
+                    CA: "California",
+                    NV: "Nevada"
+                }
+            },
+            methods: {
+                addToCart(course) {
+                    this.cart.push(course);
+                },
+                
+                showCheckoutModal() {
+                    this.showCheckoutOptions = true;
+                    document.body.classList.add('modal-active'); // Lock scroll
+                },
+    
+                closeCheckoutModal() {
+                    this.showCheckoutOptions = false;
+                    document.body.classList.remove('modal-active'); // Unlock scroll
+                },
+                
+                submitForm() {
+                    alert("Order Submitted!");
+                    this.resetOrder();
+                },
+                
+                resetOrder() {
+                    this.order = {
+                        firstName: "",
+                        lastName: "",
+                        address: "",
+                        city: "",
+                        state: "",
+                        zip: "",
+                        method: "Home",
+                        gift: false
+                    };
+                    this.showCheckoutOptions = false;
+                    document.body.style.overflow = ''; // Enable scrolling
+                },
+                showLoginModal() {
+                    this.showLogin = true;
+                },
+                showSignupModal() {
+                    this.showSignup = true;
+                },
+                login() {
+                    alert(`Logged in as ${this.loginEmail}`);
+                    this.showLogin = false;
+                },
+                signup() {
+                    alert(`Signed up with ${this.signupEmail}`);
+                    this.showSignup = false;
+                }
+            },
+            computed: {
+                cartItemCount() {
+                    return this.cart.length || "";
+                }
+            }
+        });
+    </script>
+</body>
+</html>
