@@ -6,7 +6,6 @@
     <title>Tutoring Courses</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/vue@2.7.8/dist/vue.js"></script>
 </head>
@@ -27,6 +26,7 @@
                 </ul>
             </nav>
         </header>
+        
         <main>
             <div class="content" v-if="!showCheckoutOptions">
                 <section class="course-section" v-for="course in courses" :key="course.id">
@@ -37,6 +37,23 @@
                     <p v-text="course.description"></p>
                     <p>Price: ${{ course.price }}</p>
                     <p>Teacher: {{ course.teacher }}</p>
+
+                    <!-- Rating Section -->
+                    <div class="rating">
+                        <span 
+                            v-for="n in 5" 
+                            :key="n" 
+                            class="fas fa-star" 
+                            :class="{'filled': n <= course.rating}"
+                            title="Rating"
+                        ></span>
+                    </div>
+
+                    <!-- Available Inventory Section -->
+                    <div class="inventory">
+                        <p>Available Seats: <span v-bind:class="{'out-of-stock': course.availableSeats <= 0}">{{ course.availableSeats }}</span></p>
+                    </div>
+
                     <button v-on:click="addToCart(course)" v-if="course.availableSeats > 0">Add to Cart</button>
                     <button disabled v-else>Out of stock</button>
                 </section>
@@ -127,106 +144,68 @@
             data: {
                 sitename: 'Extra Tuition Courses',
                 courses: [
-                    { id: 2001, title: "Mathematics Tutoring", description: "Intensive math tutoring for all levels.", price: 50, image: "https://via.placeholder.com/150", availableSeats: 10, teacher: "Mr. Smith" },
-                    { id: 2002, title: "Science Classes", description: "Engaging science classes for high school students.", price: 60, image: "https://via.placeholder.com/150", availableSeats: 5, teacher: "Ms. Johnson" },
-                    { id: 2003, title: "English Language Arts", description: "Improving reading and writing skills.", price: 55, image: "https://via.placeholder.com/150", availableSeats: 0, teacher: "Dr. Brown" },
-                    { id: 2004, title: "History Lessons", description: "Explore the past through interactive lessons.", price: 45, image: "https://via.placeholder.com/150", availableSeats: 8, teacher: "Mrs. Davis" },
-                    { id: 2005, title: "Computer Science Basics", description: "Introduction to coding and computer science.", price: 70, image: "https://via.placeholder.com/150", availableSeats: 6, teacher: "Ms. Miller" },
-                    { id: 2006, title: "Art & Creativity", description: "Unleash your creativity in art classes.", price: 40, image: "https://via.placeholder.com/150", availableSeats: 12, teacher: "Mr. Wilson" },
-                    { id: 2007, title: "Physics for Beginners", description: "Understanding the fundamentals of physics.", price: 65, image: "https://via.placeholder.com/150", availableSeats: 4, teacher: "Mr. Taylor" },
-                    { id: 2008, title: "Advanced Calculus", description: "In-depth calculus for advanced students.", price: 80, image: "https://via.placeholder.com/150", availableSeats: 3, teacher: "Ms. Anderson" },
-                    { id: 2009, title: "Chemistry Fundamentals", description: "Basic concepts and principles of chemistry.", price: 55, image: "https://via.placeholder.com/150", availableSeats: 10, teacher: "Dr. Jackson" },
-                    { id: 2010, title: "Creative Writing Workshop", description: "Enhance your writing skills through workshops.", price: 50, image: "https://via.placeholder.com/150", availableSeats: 15, teacher: "Ms. White" },
-                    { id: 2011, title: "SAT Preparation", description: "Prepare for the SAT with expert guidance.", price: 120, image: "https://via.placeholder.com/150", availableSeats: 5, teacher: "Mr. Harris" },
-                    { id: 2012, title: "Spanish Language Course", description: "Learn Spanish from beginner to advanced levels.", price: 60, image: "https://via.placeholder.com/150", availableSeats: 7, teacher: "Ms. Clark" },
-                    { id: 2013, title: "Public Speaking Skills", description: "Build confidence in public speaking.", price: 40, image: "https://via.placeholder.com/150", availableSeats: 8, teacher: "Mr. Lewis" },
-                    { id: 2014, title: "Digital Marketing Basics", description: "Learn the fundamentals of digital marketing.", price: 75, image: "https://via.placeholder.com/150", availableSeats: 10, teacher: "Ms. Young" },
-                    { id: 2015, title: "Photography for Beginners", description: "Master the basics of photography.", price: 55, image: "https://via.placeholder.com/150", availableSeats: 12, teacher: "Mr. Walker" },
-                    { id: 2016, title: "Introduction to Graphic Design", description: "Get started with graphic design techniques.", price: 65, image: "https://via.placeholder.com/150", availableSeats: 4, teacher: "Ms. Hall" },
-                    { id: 2017, title: "Music Theory Basics", description: "Learn the fundamentals of music theory.", price: 50, image: "https://via.placeholder.com/150", availableSeats: 10, teacher: "Mr. Allen" },
-                    { id: 2018, title: "Personal Finance Management", description: "Manage your finances effectively.", price: 70, image: "https://via.placeholder.com/150", availableSeats: 6, teacher: "Ms. King" },
-                    { id: 2019, title: "Introduction to Yoga", description: "Learn the basics of yoga practice.", price: 40, image: "https://via.placeholder.com/150", availableSeats: 12, teacher: "Mr. Wright" },
-                    { id: 2020, title: "Web Development Bootcamp", description: "Learn web development from scratch.", price: 150, image: "https://via.placeholder.com/150", availableSeats: 5, teacher: "Ms. Scott" }
+                    { id: 2001, title: "Mathematics Tutoring", description: "Intensive math tutoring for all levels.", price: 50, image: "https://via.placeholder.com/150", availableSeats: 10, teacher: "Mr. Smith", rating: 4 },
+                    { id: 2002, title: "Science Classes", description: "Engaging science classes for high school students.", price: 60, image: "https://via.placeholder.com/150", availableSeats: 5, teacher: "Ms. Johnson", rating: 3 },
+                    { id: 2003, title: "English Language Arts", description: "Improving reading and writing skills.", price: 55, image: "https://via.placeholder.com/150", availableSeats: 0, teacher: "Dr. Brown", rating: 5 },
+                    { id: 2004, title: "History Lessons", description: "Explore the past through interactive lessons.", price: 45, image: "https://via.placeholder.com/150", availableSeats: 8, teacher: "Mrs. Davis", rating: 4 },
+                    { id: 2005, title: "Computer Science Basics", description: "Introduction to coding and computer science.", price: 70, image: "https://via.placeholder.com/150", availableSeats: 6, teacher: "Ms. Miller", rating: 2 },
+                    { id: 2006, title: "Art & Creativity", description: "Unleash your creativity in art classes.", price: 40, image: "https://via.placeholder.com/150", availableSeats: 12, teacher: "Mr. Wilson", rating: 5 },
+                    { id: 2007, title: "Geography and World Studies", description: "Study the world and its diverse cultures.", price: 50, image: "https://via.placeholder.com/150", availableSeats: 3, teacher: "Ms. Garcia", rating: 4 },
+                    { id: 2008, title: "Business and Economics", description: "An introduction to basic business principles.", price: 75, image: "https://via.placeholder.com/150", availableSeats: 7, teacher: "Dr. Adams", rating: 3 },
+                    { id: 2009, title: "Advanced Chemistry", description: "For students looking to take chemistry to the next level.", price: 85, image: "https://via.placeholder.com/150", availableSeats: 2, teacher: "Prof. White", rating: 5 },
+                    { id: 2010, title: "Spanish for Beginners", description: "Start your journey with Spanish language lessons.", price: 40, image: "https://via.placeholder.com/150", availableSeats: 10, teacher: "Mr. Morales", rating: 3 },
+                    { id: 2011, title: "Psychology Basics", description: "Explore the fundamentals of psychology.", price: 55, image: "https://via.placeholder.com/150", availableSeats: 9, teacher: "Prof. Hall", rating: 2 },
+                    { id: 2012, title: "Philosophy 101", description: "Explore the fundamentals of philosophy.", price: 55, image: "https://via.placeholder.com/150", availableSeats: 9, teacher: "Prof. Hall", rating: 2 },
+                    { id: 2013, title: "Physical Education", description: "Focus on health and fitness with PE lessons.", price: 30, image: "https://via.placeholder.com/150", availableSeats: 20, teacher: "Coach Turner", rating: 5 },
+                    { id: 2014, title: "Biology for High School", description: "Learn the basics of biology and living organisms.", price: 60, image: "https://via.placeholder.com/150", availableSeats: 4, teacher: "Dr. Clark", rating: 4 },
+                    { id: 2015, title: "Advanced Physics", description: "For students aiming for a deeper understanding of physics.", price: 90, image: "https://via.placeholder.com/150", availableSeats: 8, teacher: "Prof. Smith", rating: 5 }
                 ],
-
                 cart: [],
+                showLoginModal: false,
+                showSignupModal: false,
+                showCheckoutOptions: false,
                 showLogin: false,
                 showSignup: false,
-                loginEmail: '',
-                loginPassword: '',
-                signupUsername: '',
-                signupEmail: '',
-                signupPassword: '',
-                showCheckoutOptions: false,
                 order: {
-                    firstName: "",
-                    lastName: "",
-                    address: "",
-                    city: "",
-                    state: "",
-                    zip: "",
-                    method: "Home",
+                    firstName: '',
+                    lastName: '',
+                    address: '',
+                    city: '',
+                    state: '',
+                    zip: '',
+                    method: '',
                     gift: false
-                },
-                states: {
-                    AL: "Alabama",
-                    AR: "Arizona",
-                    CA: "California",
-                    NV: "Nevada"
                 }
             },
             methods: {
                 addToCart(course) {
                     this.cart.push(course);
+                    alert(`${course.title} added to cart!`);
                 },
-                
-                showCheckoutModal() {
-                    this.showCheckoutOptions = true;
-                    document.body.classList.add('modal-active'); // Lock scroll
-                },
-    
                 closeCheckoutModal() {
                     this.showCheckoutOptions = false;
-                    document.body.classList.remove('modal-active'); // Unlock scroll
                 },
-                
+                showCheckoutModal() {
+                    this.showCheckoutOptions = true;
+                },
                 submitForm() {
-                    alert("Order Submitted!");
-                    this.resetOrder();
-                },
-                
-                resetOrder() {
-                    this.order = {
-                        firstName: "",
-                        lastName: "",
-                        address: "",
-                        city: "",
-                        state: "",
-                        zip: "",
-                        method: "Home",
-                        gift: false
-                    };
+                    alert("Order placed successfully!");
                     this.showCheckoutOptions = false;
-                    document.body.style.overflow = ''; // Enable scrolling
                 },
                 showLoginModal() {
-                    this.showLogin = true;
+                    this.showLoginModal = true;
                 },
                 showSignupModal() {
-                    this.showSignup = true;
-                },
-                login() {
-                    alert(`Logged in as ${this.loginEmail}`);
-                    this.showLogin = false;
+                    this.showSignupModal = true;
                 },
                 signup() {
-                    alert(`Signed up with ${this.signupEmail}`);
+                    alert(`Signed up as ${this.signupEmail}`);
                     this.showSignup = false;
                 }
             },
             computed: {
                 cartItemCount() {
-                    return this.cart.length || "";
+                    return this.cart.length;
                 }
             }
         });

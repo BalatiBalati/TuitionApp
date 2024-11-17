@@ -1,3 +1,4 @@
+/* General Styling */
 body {
     background-color: #e0f7fa;
     font-family: 'Bubblegum Sans', cursive;
@@ -160,5 +161,108 @@ input[type="radio"] {
     100% {
         transform: scale(1.5);
         opacity: 0;
+    }
+}
+
+/* Rating Section Styling */
+.rating {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.rating .fa-star {
+    color: #ffcc00;
+    font-size: 18px;
+    margin-right: 2px;
+}
+
+.rating .filled {
+    color: #ff6f61;
+}
+
+/* Available Inventory Section Styling */
+.inventory {
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+.inventory span {
+    font-weight: bold;
+}
+
+.out-of-stock {
+    color: red;
+    font-weight: bold;
+}
+
+/* Buttons for 'Add to Cart' */
+button:disabled {
+    background: #d3d3d3;
+    cursor: not-allowed;
+}
+
+/* Modal Styling for Forms */
+input[type="text"],
+input[type="password"],
+input[type="number"],
+select {
+    border-radius: 10px;
+    padding: 10px;
+    border: 2px solid #ffcc00;
+    margin: 5px 0;
+    width: calc(100% - 20px);
+}
+
+/* Cart Checkout Modal */
+.cart-section {
+    background-color: #ffffff;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 10px;
+}
+
+.cart-section h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.cart-item button {
+    background: #e8491d;
+    padding: 10px;
+    border-radius: 20px;
+    color: white;
+    border: none;
+}
+
+.cart-item button:hover {
+    background: #ff6f61;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .course-section {
+        width: calc(50% - 20px); /* 2 courses per row */
+    }
+}
+
+@media (max-width: 480px) {
+    .course-section {
+        width: 100%; /* 1 course per row */
+    }
+
+    .modal-content {
+        width: 80%;
+    }
+
+    .site-name {
+        font-size: 28px;
     }
 }
