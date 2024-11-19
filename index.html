@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <script src="products.js"></script>
     <script src="https://unpkg.com/vue@2.7.8/dist/vue.js"></script>
 </head>
 
@@ -143,23 +144,25 @@
             el: '#app',
             data: {
                 sitename: 'Extra Tuition Courses',
-                courses: [
-                    { id: 2001, title: "Mathematics Tutoring", description: "Intensive math tutoring for all levels.", price: 50, image: "https://via.placeholder.com/150", availableSeats: 10, teacher: "Mr. Smith", rating: 4 },
-                    { id: 2002, title: "Science Classes", description: "Engaging science classes for high school students.", price: 60, image: "https://via.placeholder.com/150", availableSeats: 5, teacher: "Ms. Johnson", rating: 3 },
-                    { id: 2003, title: "English Language Arts", description: "Improving reading and writing skills.", price: 55, image: "https://via.placeholder.com/150", availableSeats: 0, teacher: "Dr. Brown", rating: 5 },
-                    { id: 2004, title: "History Lessons", description: "Explore the past through interactive lessons.", price: 45, image: "https://via.placeholder.com/150", availableSeats: 8, teacher: "Mrs. Davis", rating: 4 },
-                    { id: 2005, title: "Computer Science Basics", description: "Introduction to coding and computer science.", price: 70, image: "https://via.placeholder.com/150", availableSeats: 6, teacher: "Ms. Miller", rating: 2 },
-                    { id: 2006, title: "Art & Creativity", description: "Unleash your creativity in art classes.", price: 40, image: "https://via.placeholder.com/150", availableSeats: 12, teacher: "Mr. Wilson", rating: 5 },
-                    { id: 2007, title: "Geography and World Studies", description: "Study the world and its diverse cultures.", price: 50, image: "https://via.placeholder.com/150", availableSeats: 3, teacher: "Ms. Garcia", rating: 4 },
-                    { id: 2008, title: "Business and Economics", description: "An introduction to basic business principles.", price: 75, image: "https://via.placeholder.com/150", availableSeats: 7, teacher: "Dr. Adams", rating: 3 },
-                    { id: 2009, title: "Advanced Chemistry", description: "For students looking to take chemistry to the next level.", price: 85, image: "https://via.placeholder.com/150", availableSeats: 2, teacher: "Prof. White", rating: 5 },
-                    { id: 2010, title: "Spanish for Beginners", description: "Start your journey with Spanish language lessons.", price: 40, image: "https://via.placeholder.com/150", availableSeats: 10, teacher: "Mr. Morales", rating: 3 },
-                    { id: 2011, title: "Psychology Basics", description: "Explore the fundamentals of psychology.", price: 55, image: "https://via.placeholder.com/150", availableSeats: 9, teacher: "Prof. Hall", rating: 2 },
-                    { id: 2012, title: "Philosophy 101", description: "Explore the fundamentals of philosophy.", price: 55, image: "https://via.placeholder.com/150", availableSeats: 9, teacher: "Prof. Hall", rating: 2 },
-                    { id: 2013, title: "Physical Education", description: "Focus on health and fitness with PE lessons.", price: 30, image: "https://via.placeholder.com/150", availableSeats: 20, teacher: "Coach Turner", rating: 5 },
-                    { id: 2014, title: "Biology for High School", description: "Learn the basics of biology and living organisms.", price: 60, image: "https://via.placeholder.com/150", availableSeats: 4, teacher: "Dr. Clark", rating: 4 },
-                    { id: 2015, title: "Advanced Physics", description: "For students aiming for a deeper understanding of physics.", price: 90, image: "https://via.placeholder.com/150", availableSeats: 8, teacher: "Prof. Smith", rating: 5 }
-                ],
+                showProduct: true,
+                products: [],
+                // courses: [
+                //     { id: 2001, title: "Mathematics Tutoring", description: "Intensive math tutoring for all levels.", price: 50, image: "https://via.placeholder.com/150", availableSeats: 10, teacher: "Mr. Smith", rating: 4 },
+                //     { id: 2002, title: "Science Classes", description: "Engaging science classes for high school students.", price: 60, image: "https://via.placeholder.com/150", availableSeats: 5, teacher: "Ms. Johnson", rating: 3 },
+                //     { id: 2003, title: "English Language Arts", description: "Improving reading and writing skills.", price: 55, image: "https://via.placeholder.com/150", availableSeats: 0, teacher: "Dr. Brown", rating: 5 },
+                //     { id: 2004, title: "History Lessons", description: "Explore the past through interactive lessons.", price: 45, image: "https://via.placeholder.com/150", availableSeats: 8, teacher: "Mrs. Davis", rating: 4 },
+                //     { id: 2005, title: "Computer Science Basics", description: "Introduction to coding and computer science.", price: 70, image: "https://via.placeholder.com/150", availableSeats: 6, teacher: "Ms. Miller", rating: 2 },
+                //     { id: 2006, title: "Art & Creativity", description: "Unleash your creativity in art classes.", price: 40, image: "https://via.placeholder.com/150", availableSeats: 12, teacher: "Mr. Wilson", rating: 5 },
+                //     { id: 2007, title: "Geography and World Studies", description: "Study the world and its diverse cultures.", price: 50, image: "https://via.placeholder.com/150", availableSeats: 3, teacher: "Ms. Garcia", rating: 4 },
+                //     { id: 2008, title: "Business and Economics", description: "An introduction to basic business principles.", price: 75, image: "https://via.placeholder.com/150", availableSeats: 7, teacher: "Dr. Adams", rating: 3 },
+                //     { id: 2009, title: "Advanced Chemistry", description: "For students looking to take chemistry to the next level.", price: 85, image: "https://via.placeholder.com/150", availableSeats: 2, teacher: "Prof. White", rating: 5 },
+                //     { id: 2010, title: "Spanish for Beginners", description: "Start your journey with Spanish language lessons.", price: 40, image: "https://via.placeholder.com/150", availableSeats: 10, teacher: "Mr. Morales", rating: 3 },
+                //     { id: 2011, title: "Psychology Basics", description: "Explore the fundamentals of psychology.", price: 55, image: "https://via.placeholder.com/150", availableSeats: 9, teacher: "Prof. Hall", rating: 2 },
+                //     { id: 2012, title: "Philosophy 101", description: "Explore the fundamentals of philosophy.", price: 55, image: "https://via.placeholder.com/150", availableSeats: 9, teacher: "Prof. Hall", rating: 2 },
+                //     { id: 2013, title: "Physical Education", description: "Focus on health and fitness with PE lessons.", price: 30, image: "https://via.placeholder.com/150", availableSeats: 20, teacher: "Coach Turner", rating: 5 },
+                //     { id: 2014, title: "Biology for High School", description: "Learn the basics of biology and living organisms.", price: 60, image: "https://via.placeholder.com/150", availableSeats: 4, teacher: "Dr. Clark", rating: 4 },
+                //     { id: 2015, title: "Advanced Physics", description: "For students aiming for a deeper understanding of physics.", price: 90, image: "https://via.placeholder.com/150", availableSeats: 8, teacher: "Prof. Smith", rating: 5 }
+                // ],
                 cart: [],
                 showLoginModal: false,
                 showSignupModal: false,
@@ -176,6 +179,17 @@
                     method: '',
                     gift: false
                 }
+            },
+            created: function(){
+                fetch("http://localhost:3000/collection/products").then(
+                    function(response){
+                        response.json().then(
+                            function(json){
+                                webstore.products = json;
+                            }
+                        )
+                    }
+                )
             },
             methods: {
                 addToCart(course) {
