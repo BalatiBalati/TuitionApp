@@ -1,0 +1,26 @@
+{
+  "name": "tuitionapp",
+  "version": "1.0.0",
+  "description": "Mauritian Tuition App",
+  "main": "products.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "mongodb": "^6.10.0",
+    "mongosh": "^2.3.3",
+    "morgan": "^1.10.0",
+    "mustache": "^4.2.0",
+    "node": "^18.20.5",
+    "nodemon": "^3.1.7",
+    "path": "^0.12.7",
+    "properties-reader": "^2.3.0",
+    "vite": "^5.4.11"
+  }
+}
