@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <script src="products.js"></script>
     <script src="https://unpkg.com/vue@2.7.8/dist/vue.js"></script>
 </head>
 
@@ -29,22 +28,8 @@
         </header>
         
         <main>
-            <!-- Sorting Options -->
-            <div class="sorting-options">
-                <select v-model="sortAttribute">
-                    <option value="price">Price</option>
-                    <option value="rating">Rating</option>
-                    <option value="availableSeats">Available Seats</option>
-                    <option value="title">Course Title (A-Z)</option>
-                </select>
-                <select v-model="sortOrder">
-                    <option value="asc">Ascending</option>
-                    <option value="desc">Descending</option>
-                </select>
-            </div>
-
-            <div class="content" v-if="!showCheckoutOptions">
-                <section class="course-section" v-for="course in sortedCourses" :key="course.id">
+            <div class="content">
+                <section class="course-section" v-for="course in courses" :key="course.id">
                     <h2 v-text="course.title"></h2>
                     <p><i class="fas fa-book"></i> <strong>Subject:</strong> {{ course.title }}</p>
                     <p><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> {{ course.location }}</p>
@@ -63,6 +48,7 @@
                         ></span>
                     </div>
 
+                    <!-- Add to Cart button -->
                     <button v-on:click="addToCart(course)" v-if="course.availableSeats > 0">Add to Cart</button>
                     <button disabled v-else>Out of stock</button>
                 </section>
@@ -152,8 +138,6 @@
             el: '#app',
             data: {
                 sitename: 'Extra Tuition Courses',
-                sortAttribute: 'price',  // Default sorting attribute
-                sortOrder: 'asc',        // Default sorting order
                 courses: [
                     { id: 2001, title: "Mathematics Tutoring", location: "Online", price: 50, teacher: "Mr. Smith", availableSeats: 10, rating: 4 },
                     { id: 2002, title: "Science Classes", location: "Room 101", price: 60, teacher: "Ms. Johnson", availableSeats: 5, rating: 3 },
@@ -163,7 +147,9 @@
                     { id: 2006, title: "Art & Creativity", location: "Art Studio", price: 40, teacher: "Mr. Wilson", availableSeats: 12, rating: 5 },
                     { id: 2007, title: "Geography and World Studies", location: "Room 104", price: 50, teacher: "Ms. Garcia", availableSeats: 3, rating: 4 },
                     { id: 2008, title: "Business and Economics", location: "Room 105", price: 75, teacher: "Dr. Adams", availableSeats: 7, rating: 3 },
-                    { id: 2009, title: "Advanced Chemistry", location: "Room 106", price: 85, teacher: "Prof. White", availableSeats: 2, rating: 5 }
+                    { id: 2009, title: "Advanced Chemistry", location: "Room 106", price: 85, teacher: "Prof. White", availableSeats: 2, rating: 5 },
+                    { id: 2010, title: "Spanish for Beginners", location: "Room 107", price: 40, teacher: "Mr. Morales", availableSeats: 10, rating: 3 },
+                    { id: 2011, title: "Physics Tutoring", location: "Room 108", price: 60, teacher: "Dr. Carter", availableSeats: 4, rating: 4 }
                 ],
                 cart: [],
                 showCheckoutOptions: false,
@@ -179,8 +165,10 @@
             },
             methods: {
                 addToCart(course) {
-                    this.cart.push(course);
-                    course.availableSeats--;
+                    if (course.availableSeats > 0) {
+                        this.cart.push(course);
+                        course.availableSeats--;  // Decrease available seats when added to the cart
+                    }
                 },
                 closeCheckoutModal() {
                     this.showCheckoutOptions = false;
@@ -210,26 +198,6 @@
             computed: {
                 cartItemCount() {
                     return this.cart.length;
-                },
-                sortedCourses() {
-                    // Sorting function based on selected attribute and order
-                    return this.courses.slice().sort((a, b) => {
-                        let aValue = a[this.sortAttribute];
-                        let bValue = b[this.sortAttribute];
-                        
-                        if (this.sortAttribute === 'title') {
-                            // Special case for sorting by title's first letter
-                            aValue = a.title.charAt(0).toUpperCase();
-                            bValue = b.title.charAt(0).toUpperCase();
-                        }
-                        
-                        // For ascending order, subtract a from b, and for descending, subtract b from a
-                        if (this.sortOrder === 'asc') {
-                            return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
-                        } else {
-                            return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
-                        }
-                    });
                 }
             }
         });
