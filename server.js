@@ -6,10 +6,11 @@ const path = require("path");
 let propertiesReader = require("properties-reader");
 let propertiesPath = path.resolve(__dirname, "conf/demo-db.properties");
 let properties = propertiesReader(propertiesPath);
+
 let dbPrefix = properties.get("db.prefix");
-let dbUsername = properties.get("db.prefix");
+let dbUsername = properties.get("db.user");
 let dbPwd = encodeURIComponent(properties.get("db.pwd"));
-let dbName = properties.get("db.dbName");
+let dbName = properties.get("db.name");
 let dbUrl = properties.get("db.dbUrl");
 let dbParams = properties.get("db.params");
 
@@ -17,7 +18,7 @@ const uri = dbPrefix + dbUsername + ":" + dbPwd + dbUrl + dbParams;
 
 let db;
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const client = new MongoClient(uri, { userNewUriParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
@@ -54,7 +55,32 @@ app.get('/collections/:collectionName', function(req, res, next){
     });
 });
 
-app.get
+app.get('/collections/:collectionName/:max/:sortAspect/:sertAscDesc', function(req, res, next){
+    var max = parseInt(req.params.max, 10);
+
+    let sortDirection = 1;
+    if (req.params.sertAscDesc === "desc") {
+        sortDirection = -1;
+    }
+
+    req.collection.find({}, {limit: max, sort: [[req.params.sortAspect, sortDirection]]}).toArray(function(err, results){
+        if (err) {
+            return next(err);
+        }
+
+        res.send(results);
+    });
+
+});
+
+app.get('/collections/:collectionName/:id', function(req, res, next){
+    req.collection.findOne({ _id: new ObjectId(req.params.id) }, 
+    function(err, results){
+        if (err) {
+            return next (err);
+        }
+    });
+});
 
 app.use(function(req, res, next){
     console.log("Incoming request " + req.url);
@@ -84,4 +110,8 @@ app.delete("/", function(req, res){
 
 app.use(function(req, res){
     res.status(404).send("Resource not found!");
+});
+
+app.listen(3001, () => {
+    console.log('Server is running on port 3001');
 });
