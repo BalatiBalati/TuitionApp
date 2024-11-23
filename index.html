@@ -17,18 +17,21 @@
             <nav>
                 <ul>
                     <li>
-                        <button v-on:click="showCheckoutModal">
-                            {{ cartItemCount }} <span class="fas fa-cart-plus"></span> Checkout
+                        <!-- Toggle Cart Button -->
+                        <button v-on:click="toggleCart">
+                            {{ cartItemCount }} <span class="fas fa-cart-plus"></span> 
+                            {{ showCart ? 'Back to Lessons' : 'View Cart' }}
                         </button>
                     </li>
                     <li><button v-on:click="showLoginModal">Log In</button></li>
-                    <li><button v-on:click="showSignupModal">Sign Up</button></li>
+                    <li><button v-on:click="showRegisterModal">Register</button></li>
                 </ul>
             </nav>
         </header>
         
         <main>
-            <div class="content">
+            <!-- Show Courses or Cart based on showCart flag -->
+            <div v-if="!showCart" class="content">
                 <section class="course-section" v-for="course in courses" :key="course.id">
                     <h2 v-text="course.title"></h2>
                     <p><i class="fas fa-book"></i> <strong>Subject:</strong> {{ course.title }}</p>
@@ -52,6 +55,21 @@
                     <button v-on:click="addToCart(course)" v-if="course.availableSeats > 0">Add to Cart</button>
                     <button disabled v-else>Out of stock</button>
                 </section>
+            </div>
+
+            <!-- Cart Page -->
+            <div v-if="showCart" class="cart-page">
+                <h2>Your Cart</h2>
+                <ul>
+                    <li v-for="(item, index) in cart" :key="item.id">
+                        <span>{{ item.title }}</span> - ${{ item.price }}
+                        <button v-on:click="removeFromCart(index)">Remove</button>
+                    </li>
+                </ul>
+                <h3>Total: ${{ totalCost }}</h3>
+                <button v-on:click="showCheckoutModal" :disabled="!isFormValid" class="checkout-button">
+                    Proceed to Checkout
+                </button>
             </div>
 
             <!-- Checkout Modal -->
@@ -119,15 +137,14 @@
                 </div>
             </div>
 
-            <!-- Modal for Sign Up -->
-            <div v-if="showSignup" class="modal">
+            <!-- Modal for Register (Only Name and Phone fields) -->
+            <div v-if="showRegister" class="modal">
                 <div class="modal-content">
-                    <span class="close" v-on:click="showSignup = false">&times;</span>
-                    <h2>Sign Up</h2>
-                    <input type="text" placeholder="Username" v-model="signupUsername" />
-                    <input type="text" placeholder="Email" v-model="signupEmail" />
-                    <input type="password" placeholder="Password" v-model="signupPassword" />
-                    <button v-on:click="signup">Sign Up</button>
+                    <span class="close" v-on:click="showRegister = false">&times;</span>
+                    <h2>Register</h2>
+                    <input type="text" placeholder="Name" v-model="registerName" />
+                    <input type="text" placeholder="Phone" v-model="registerPhone" />
+                    <button v-on:click="register">Register</button>
                 </div>
             </div>
         </main>
@@ -148,20 +165,39 @@
                     { id: 2007, title: "Geography and World Studies", location: "Room 104", price: 50, teacher: "Ms. Garcia", availableSeats: 3, rating: 4 },
                     { id: 2008, title: "Business and Economics", location: "Room 105", price: 75, teacher: "Dr. Adams", availableSeats: 7, rating: 3 },
                     { id: 2009, title: "Advanced Chemistry", location: "Room 106", price: 85, teacher: "Prof. White", availableSeats: 2, rating: 5 },
-                    { id: 2010, title: "Spanish for Beginners", location: "Room 107", price: 40, teacher: "Mr. Morales", availableSeats: 10, rating: 3 },
+                    { id: 2010, title: "Physics Tutoring", location: "Room 107", price: 35, teacher: "Mr. Morales", availableSeats: 10, rating: 3 },
                     { id: 2011, title: "Physics Tutoring", location: "Room 108", price: 60, teacher: "Dr. Carter", availableSeats: 4, rating: 4 }
                 ],
                 cart: [],
+                showCart: false,
                 showCheckoutOptions: false,
                 order: { firstName: '', lastName: '', address: '', city: '', state: '', zip: '', method: '', gift: false },
                 states: { CA: 'California', NY: 'New York', TX: 'Texas' },
                 showLogin: false,
-                showSignup: false,
+                showRegister: false,
                 loginEmail: '',
                 loginPassword: '',
-                signupUsername: '',
-                signupEmail: '',
-                signupPassword: '',
+                registerName: '',
+                registerPhone: ''
+            },
+            computed: {
+                isNameValid() {
+                    const nameRegex = /^[a-zA-Z]+$/;
+                    return nameRegex.test(this.registerName);  // Check if name is only letters
+                },
+                isPhoneValid() {
+                    const phoneRegex = /^[0-9]+$/;
+                    return phoneRegex.test(this.registerPhone);  // Check if phone is only numbers
+                },
+                isFormValid() {
+                    return this.isNameValid && this.isPhoneValid;  // Both Name and Phone must be valid
+                },
+                cartItemCount() {
+                    return this.cart.length;
+                },
+                totalCost() {
+                    return this.cart.reduce((total, item) => total + item.price, 0);
+                }
             },
             methods: {
                 addToCart(course) {
@@ -180,24 +216,29 @@
                     alert('Order Submitted!');
                     this.showCheckoutOptions = false;
                 },
+                toggleCart() {
+                    this.showCart = !this.showCart;
+                },
+                removeFromCart(index) {
+                    const course = this.cart.splice(index, 1)[0]; // Remove from cart
+                    const courseInList = this.courses.find(c => c.id === course.id);
+                    if (courseInList) {
+                        courseInList.availableSeats++; // Re-add to course list and increase available seats
+                    }
+                },
                 showLoginModal() {
                     this.showLogin = true;
                 },
-                showSignupModal() {
-                    this.showSignup = true;
+                showRegisterModal() {
+                    this.showRegister = true;
                 },
                 login() {
                     alert(`Logged in as ${this.loginEmail}`);
                     this.showLogin = false;
                 },
-                signup() {
-                    alert(`Signed up with ${this.signupEmail}`);
-                    this.showSignup = false;
-                }
-            },
-            computed: {
-                cartItemCount() {
-                    return this.cart.length;
+                register() {
+                    alert(`Registered as ${this.registerName} with phone ${this.registerPhone}`);
+                    this.showRegister = false;
                 }
             }
         });
