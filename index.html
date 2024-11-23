@@ -29,15 +29,28 @@
         </header>
         
         <main>
+            <!-- Sorting Options -->
+            <div class="sorting-options">
+                <select v-model="sortAttribute">
+                    <option value="price">Price</option>
+                    <option value="rating">Rating</option>
+                    <option value="availableSeats">Available Seats</option>
+                    <option value="title">Course Title (A-Z)</option>
+                </select>
+                <select v-model="sortOrder">
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                </select>
+            </div>
+
             <div class="content" v-if="!showCheckoutOptions">
-                <section class="course-section" v-for="course in courses" :key="course.id">
-                    <figure>
-                        <img v-bind:src="course.image" alt="Course Image" />
-                    </figure>
+                <section class="course-section" v-for="course in sortedCourses" :key="course.id">
                     <h2 v-text="course.title"></h2>
-                    <p v-text="course.description"></p>
-                    <p>Price: ${{ course.price }}</p>
-                    <p>Teacher: {{ course.teacher }}</p>
+                    <p><i class="fas fa-book"></i> <strong>Subject:</strong> {{ course.title }}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> {{ course.location }}</p>
+                    <p><i class="fas fa-dollar-sign"></i> <strong>Price:</strong> ${{ course.price }}</p>
+                    <p><i class="fas fa-chalkboard-teacher"></i> <strong>Lecturer:</strong> {{ course.teacher }}</p>
+                    <p><i class="fas fa-users"></i> <strong>Space Available:</strong> <span v-bind:class="{'out-of-stock': course.availableSeats <= 0}">{{ course.availableSeats }}</span></p>
 
                     <!-- Rating Section -->
                     <div class="rating">
@@ -48,11 +61,6 @@
                             :class="{'filled': n <= course.rating}"
                             title="Rating"
                         ></span>
-                    </div>
-
-                    <!-- Available Inventory Section -->
-                    <div class="inventory">
-                        <p>Available Seats: <span v-bind:class="{'out-of-stock': course.availableSeats <= 0}">{{ course.availableSeats }}</span></p>
                     </div>
 
                     <button v-on:click="addToCart(course)" v-if="course.availableSeats > 0">Add to Cart</button>
@@ -144,41 +152,35 @@
             el: '#app',
             data: {
                 sitename: 'Extra Tuition Courses',
-                showProduct: true,
-                //products: [],
-
+                sortAttribute: 'price',  // Default sorting attribute
+                sortOrder: 'asc',        // Default sorting order
+                courses: [
+                    { id: 2001, title: "Mathematics Tutoring", location: "Online", price: 50, teacher: "Mr. Smith", availableSeats: 10, rating: 4 },
+                    { id: 2002, title: "Science Classes", location: "Room 101", price: 60, teacher: "Ms. Johnson", availableSeats: 5, rating: 3 },
+                    { id: 2003, title: "English Language Arts", location: "Room 102", price: 55, teacher: "Dr. Brown", availableSeats: 0, rating: 5 },
+                    { id: 2004, title: "History Lessons", location: "Room 103", price: 45, teacher: "Mrs. Davis", availableSeats: 8, rating: 4 },
+                    { id: 2005, title: "Computer Science Basics", location: "Online", price: 70, teacher: "Ms. Miller", availableSeats: 6, rating: 2 },
+                    { id: 2006, title: "Art & Creativity", location: "Art Studio", price: 40, teacher: "Mr. Wilson", availableSeats: 12, rating: 5 },
+                    { id: 2007, title: "Geography and World Studies", location: "Room 104", price: 50, teacher: "Ms. Garcia", availableSeats: 3, rating: 4 },
+                    { id: 2008, title: "Business and Economics", location: "Room 105", price: 75, teacher: "Dr. Adams", availableSeats: 7, rating: 3 },
+                    { id: 2009, title: "Advanced Chemistry", location: "Room 106", price: 85, teacher: "Prof. White", availableSeats: 2, rating: 5 }
+                ],
                 cart: [],
-                showLoginModal: false,
-                showSignupModal: false,
                 showCheckoutOptions: false,
+                order: { firstName: '', lastName: '', address: '', city: '', state: '', zip: '', method: '', gift: false },
+                states: { CA: 'California', NY: 'New York', TX: 'Texas' },
                 showLogin: false,
                 showSignup: false,
-                order: {
-                    firstName: '',
-                    lastName: '',
-                    address: '',
-                    city: '',
-                    state: '',
-                    zip: '',
-                    method: '',
-                    gift: false
-                }
-            },
-            created: function(){
-                fetch("http://localhost:3001/collections/products").then(
-                    function(response){
-                        response.json().then(
-                            function(json){
-                                webstore.courses = json;
-                            }
-                        )
-                    }
-                )
+                loginEmail: '',
+                loginPassword: '',
+                signupUsername: '',
+                signupEmail: '',
+                signupPassword: '',
             },
             methods: {
                 addToCart(course) {
                     this.cart.push(course);
-                    alert(`${course.title} added to cart!`);
+                    course.availableSeats--;
                 },
                 closeCheckoutModal() {
                     this.showCheckoutOptions = false;
@@ -187,23 +189,47 @@
                     this.showCheckoutOptions = true;
                 },
                 submitForm() {
-                    alert("Order placed successfully!");
+                    alert('Order Submitted!');
                     this.showCheckoutOptions = false;
                 },
                 showLoginModal() {
-                    this.showLoginModal = true;
+                    this.showLogin = true;
                 },
                 showSignupModal() {
-                    this.showSignupModal = true;
+                    this.showSignup = true;
+                },
+                login() {
+                    alert(`Logged in as ${this.loginEmail}`);
+                    this.showLogin = false;
                 },
                 signup() {
-                    alert(`Signed up as ${this.signupEmail}`);
+                    alert(`Signed up with ${this.signupEmail}`);
                     this.showSignup = false;
                 }
             },
             computed: {
                 cartItemCount() {
                     return this.cart.length;
+                },
+                sortedCourses() {
+                    // Sorting function based on selected attribute and order
+                    return this.courses.slice().sort((a, b) => {
+                        let aValue = a[this.sortAttribute];
+                        let bValue = b[this.sortAttribute];
+                        
+                        if (this.sortAttribute === 'title') {
+                            // Special case for sorting by title's first letter
+                            aValue = a.title.charAt(0).toUpperCase();
+                            bValue = b.title.charAt(0).toUpperCase();
+                        }
+                        
+                        // For ascending order, subtract a from b, and for descending, subtract b from a
+                        if (this.sortOrder === 'asc') {
+                            return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+                        } else {
+                            return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
+                        }
+                    });
                 }
             }
         });
