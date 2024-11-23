@@ -4,7 +4,7 @@ const morgan = require("morgan");
 const path = require("path");
 
 let propertiesReader = require("properties-reader");
-let propertiesPath = path.resolve(__dirname, "conf/demo-db.properties");
+let propertiesPath = path.resolve(__dirname, "demo-db.properties");
 let properties = propertiesReader(propertiesPath);
 
 let dbPrefix = properties.get("db.prefix");
