@@ -23,7 +23,7 @@
                             {{ showCart ? 'Back to Lessons' : 'View Cart' }}
                         </button>
                     </li>
-                    <li><button v-on:click="showLoginModal">Log In</button></li>
+                    <!-- <li><button v-on:click="showLoginModal">Log In</button></li> -->
                     <li><button v-on:click="showRegisterModal">Register</button></li>
                 </ul>
             </nav>
@@ -127,7 +127,7 @@
             </div>
 
             <!-- Modal for Login -->
-            <div v-if="showLogin" class="modal">
+            <!-- <div v-if="showLogin" class="modal">
                 <div class="modal-content">
                     <span class="close" v-on:click="showLogin = false">&times;</span>
                     <h2>Log In</h2>
@@ -135,7 +135,7 @@
                     <input type="password" placeholder="Password" v-model="loginPassword" />
                     <button v-on:click="login">Log In</button>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Modal for Register (Only Name and Phone fields) -->
             <div v-if="showRegister" class="modal">
