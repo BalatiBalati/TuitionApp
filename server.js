@@ -9,31 +9,35 @@ let properties = propertiesReader(propertiesPath);
 
 let dbPrefix = properties.get("db.prefix");
 let dbUsername = properties.get("db.user");
-let dbPwd = encodeURIComponent(properties.get("db.pwd"));
-let dbName = properties.get("db.name");
+let dbPwd = encodeURIComponent(properties.get("db.password"));  // Encode the password to handle special characters
+let dbName = properties.get("db.dbname");
 let dbUrl = properties.get("db.dbUrl");
 let dbParams = properties.get("db.params");
 
-const uri = dbPrefix + dbUsername + ":" + dbPwd + dbUrl + dbParams;
+// Create the MongoDB connection string using the provided details.
+// Ensure the database name and parameters are included in the URI.
+const uri = `${dbPrefix}${dbUsername}:${dbPwd}${dbUrl}${dbName}${dbParams}`;
 
 let db;
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
-const client = new MongoClient(uri, { userNewUriParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 client.connect(err => {
-    const collection = client.db(dbName).collection("products");
-    db = client.db(dbName);
+    if (err) {
+        console.error("Failed to connect to the database", err);
+        return;
+    }
+    db = client.db(dbName);  // Use the database name from the properties
+    console.log("Connected to database", dbName);
 });
 
 let app = express();
 app.set('json spaces', 3);
 
 app.use(cors());
-
 app.use(morgan("short"));
-
 app.use(express.json());
 
 app.param('collectionName', function(req, res, next, collectionName){
@@ -42,58 +46,57 @@ app.param('collectionName', function(req, res, next, collectionName){
 });
 
 app.get('/', function(req, res, next){
-    res.send('Select a collection, e.g., /collections/products')
+    res.send('Select a collection, e.g., /collections/courses');
 });
 
-app.get('/collections/:collectionName', function(req, res, next){
-    req.collection. find({}). toArray(function(err, results){
-        if (err){
-            return next(err);
-        }
-
-        res.send(results);
-    });
-});
-
-app.get('/collections/:collectionName/:max/:sortAspect/:sertAscDesc', function(req, res, next){
-    var max = parseInt(req.params.max, 10);
-
-    let sortDirection = 1;
-    if (req.params.sertAscDesc === "desc") {
-        sortDirection = -1;
+app.get('/courses', async function(req, res, next){
+    try {
+        const database = client.db('EdTech');
+        const items = await database.collection('courses').find({}).toArray();
+        res.json(items);
+        //db = client.db('EdTech');  // Connect to the 'EdTech' database
+        console.log('Connected to MongoDB');
+    } catch (error) {
+        console.error('Failed to connect to MongoDB', error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
+});
 
-    req.collection.find({}, {limit: max, sort: [[req.params.sortAspect, sortDirection]]}).toArray(function(err, results){
-        if (err) {
-            return next(err);
-        }
+app.get('/courses/:max/:sortAspect/:sortOrder', function(req, res, next){
+    const max = parseInt(req.params.max, 10);
+    const sortDirection = req.params.sortOrder === "desc" ? -1 : 1;
 
-        res.send(results);
-    });
-
+    req.collection.find({})
+        .limit(max)
+        .sort([[req.params.sortAspect, sortDirection]])
+        .toArray(function(err, results){
+            if (err) {
+                return next(err);
+            }
+            res.json(results);
+        });
 });
 
 app.get('/collections/:collectionName/:id', function(req, res, next){
-    req.collection.findOne({ _id: new ObjectId(req.params.id) }, 
-    function(err, results){
-        if (err) {
-            return next (err);
-        }
-    });
+    try {
+        const objectId = new ObjectId(req.params.id);
+        req.collection.findOne({ _id: objectId }, function(err, result){
+            if (err) {
+                return next(err);
+            }
+            if (!result) {
+                return res.status(404).send("Record not found");
+            }
+            res.json(result);
+        });
+    } catch (e) {
+        return res.status(400).send("Invalid ID format");
+    }
 });
 
-app.use(function(req, res, next){
-    console.log("Incoming request " + req.url);
-    next();
-});
-
-app.get("/", function(req, res){
-    res.send("Welcome to our webpage");
-});
-
-app.arguments("/collections/products", function(req, res){
+app.all("/collections/courses", function(req, res){
     res.send("The service has been called correctly and it is working");
-    res.json({result: "OK"});
+    res.json({ result: "OK" });
 });
 
 app.post("/", function(req, res){
@@ -105,7 +108,12 @@ app.put("/", function(req, res){
 });
 
 app.delete("/", function(req, res){
-    res.send("Are you sure ?? Ok, let's delete a record");
+    res.send("Are you sure? Ok, let's delete a record");
+});
+
+app.use(function(req, res, next){
+    console.log("Incoming request", req.url);
+    next();
 });
 
 app.use(function(req, res){

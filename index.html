@@ -31,14 +31,30 @@
         
         <main>
             <!-- Show Courses or Cart based on showCart flag -->
+            <div class="sorting-options">
+                <label for="sortAttribute">Sort by:</label>
+                <select id="sortAttribute" v="sortAttribute">
+                    <option value="price">Price</option>
+                    <option value="rating">Rating</option>
+                    <option value="title">Title</option>
+                    <option value="availableInventory">Available Invetory</option>
+                </select>
+
+                <label for="sortDirection">Order: </label>
+                <select id="sortDirection" v-model="sortDirection">
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                </select>
+
+            </div>
+
             <div v-if="!showCart" class="content">
                 <section class="course-section" v-for="course in courses" :key="course.id">
                     <h2 v-text="course.title"></h2>
                     <p><i class="fas fa-book"></i> <strong>Subject:</strong> {{ course.title }}</p>
                     <p><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> {{ course.location }}</p>
                     <p><i class="fas fa-dollar-sign"></i> <strong>Price:</strong> ${{ course.price }}</p>
-                    <p><i class="fas fa-chalkboard-teacher"></i> <strong>Lecturer:</strong> {{ course.teacher }}</p>
-                    <p><i class="fas fa-users"></i> <strong>Space Available:</strong> <span v-bind:class="{'out-of-stock': course.availableSeats <= 0}">{{ course.availableSeats }}</span></p>
+                    <p><i class="fas fa-users"></i> <strong>Space Available:</strong> <span v-bind:class="{'out-of-stock': course.availableInventory <= 0}">{{ course.availableInventory }}</span></p>
 
                     <!-- Rating Section -->
                     <div class="rating">
@@ -52,7 +68,7 @@
                     </div>
 
                     <!-- Add to Cart button -->
-                    <button v-on:click="addToCart(course)" v-if="course.availableSeats > 0">Add to Cart</button>
+                    <button v-on:click="addToCart(course)" v-if="course.availableInventory > 0">Add to Cart</button>
                     <button disabled v-else>Out of stock</button>
                 </section>
             </div>
@@ -155,19 +171,7 @@
             el: '#app',
             data: {
                 sitename: 'Extra Tuition Courses',
-                courses: [
-                    { id: 2001, title: "Mathematics Tutoring", location: "Online", price: 50, teacher: "Mr. Smith", availableSeats: 10, rating: 4 },
-                    { id: 2002, title: "Science Classes", location: "Room 101", price: 60, teacher: "Ms. Johnson", availableSeats: 5, rating: 3 },
-                    { id: 2003, title: "English Language Arts", location: "Room 102", price: 55, teacher: "Dr. Brown", availableSeats: 0, rating: 5 },
-                    { id: 2004, title: "History Lessons", location: "Room 103", price: 45, teacher: "Mrs. Davis", availableSeats: 8, rating: 4 },
-                    { id: 2005, title: "Computer Science Basics", location: "Online", price: 70, teacher: "Ms. Miller", availableSeats: 6, rating: 2 },
-                    { id: 2006, title: "Art & Creativity", location: "Art Studio", price: 40, teacher: "Mr. Wilson", availableSeats: 12, rating: 5 },
-                    { id: 2007, title: "Geography and World Studies", location: "Room 104", price: 50, teacher: "Ms. Garcia", availableSeats: 3, rating: 4 },
-                    { id: 2008, title: "Business and Economics", location: "Room 105", price: 75, teacher: "Dr. Adams", availableSeats: 7, rating: 3 },
-                    { id: 2009, title: "Advanced Chemistry", location: "Room 106", price: 85, teacher: "Prof. White", availableSeats: 2, rating: 5 },
-                    { id: 2010, title: "Physics Tutoring", location: "Room 107", price: 35, teacher: "Mr. Morales", availableSeats: 10, rating: 3 },
-                    { id: 2011, title: "Physics Tutoring", location: "Room 108", price: 60, teacher: "Dr. Carter", availableSeats: 4, rating: 4 }
-                ],
+                courses: [],
                 cart: [],
                 showCart: false,
                 showCheckoutOptions: false,
@@ -181,6 +185,32 @@
                 registerPhone: ''
             },
             computed: {
+                sortedCourse(){
+                    return this.course.slice().sort((a, b)=>{
+                        let comparison = 0;
+
+                        if (this.sortAttribute === 'price') {
+                            comparison = a.price - b.price;
+                        } else if (this.sortAttribute === 'rating') {
+                            comparison = a.rating - b.rating;
+                        } else if (this.sortAttribute === 'title') {
+                            comparison = a.title.localeCompare(b.title);
+                        } else if (this.sortAttribute === 'availableInventory') {
+                            comparison = a.availableInventory - b.availableInventory;
+                        }
+
+                        return this.sortDirection === 'desc' ? -comparison : comparison;
+                    });
+                },
+
+                cartItemCount(){
+                    return this.cart.length;
+                },
+
+                totalCost(){
+                    return this.cart.reduce((total, item) => total + item.price, 0);
+                },
+
                 isNameValid() {
                     const nameRegex = /^[a-zA-Z]+$/;
                     return nameRegex.test(this.registerName);  // Check if name is only letters
@@ -199,11 +229,22 @@
                     return this.cart.reduce((total, item) => total + item.price, 0);
                 }
             },
+            created: function(){
+                fetch("http://localhost:3001/courses").then(
+                    function(response){
+                        response.json().then(
+                            function(json){
+                                webstore.courses = json;
+                            }
+                        )
+                    }
+                );
+            },
             methods: {
                 addToCart(course) {
-                    if (course.availableSeats > 0) {
+                    if (course.availableInventory > 0) {
                         this.cart.push(course);
-                        course.availableSeats--;  // Decrease available seats when added to the cart
+                        course.availableInventory--;  // Decrease available seats when added to the cart
                     }
                 },
                 closeCheckoutModal() {
@@ -223,7 +264,7 @@
                     const course = this.cart.splice(index, 1)[0]; // Remove from cart
                     const courseInList = this.courses.find(c => c.id === course.id);
                     if (courseInList) {
-                        courseInList.availableSeats++; // Re-add to course list and increase available seats
+                        courseInList.availableInventory++; // Re-add to course list and increase available seats
                     }
                 },
                 showLoginModal() {
@@ -239,6 +280,11 @@
                 register() {
                     alert(`Registered as ${this.registerName} with phone ${this.registerPhone}`);
                     this.showRegister = false;
+                }
+            }, 
+            computed: {
+                cartItemCount(){
+                    return this.cart.length;
                 }
             }
         });

@@ -1,4 +1,4 @@
-let products = [
+let courses = [
     {
         "id": 1001,
         "title": "Mathematics Tutoring",
