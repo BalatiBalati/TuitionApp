@@ -44,6 +44,21 @@ nav button:hover {
     transform: scale(1.1);
 }
 
+.left-align-container {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 28%;
+    align-items: flex-start; /* Align the content to the left */
+    margin-left: 20px; /* Optional: Add spacing from the left side of the window */
+}
+
+.left-align-container h2 {
+    margin: 0; /* Optional: Remove default margin */
+}
+
+
+
 .content {
     padding: 20px;
     display: flex;
@@ -93,24 +108,27 @@ button:hover {
 }
 
 .modal {
-    display: block;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
+    /* display: block;*/
+    position: fixed; 
+    left: 35%;
+    top: 1;
+    width: 30%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);
+    /*background-color: rgba(0, 0, 0, 0.4);*/
+    
 }
 
 .modal-content {
     background: #ffffff;
-    margin: 10% auto;
-    padding: 20px;
+    padding: 15px;
     border-radius: 20px;
-    width: 30%;
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
-    animation: fadeIn 0.5s; /* Add fade-in animation */
+    width: 30%;           /* Set the width of the modal content */
+    max-width: 300px;     /* Optional: set a max-width */
+    margin: 20px;         /* Add margin around the box */
+    position: fixed;      /* Fix the position */
+    top: 25%;             /* Place it a bit down from the top */
+    right: 1%;            /* Align it to the right of the window */
 }
 
 @keyframes fadeIn {
@@ -145,124 +163,47 @@ input[type="radio"] {
     transform: scale(1.5); /* Make checkboxes/radios larger */
 }
 
-/* Additional styles for fun elements */
-.bubble {
-    position: absolute;
-    background: rgba(255, 204, 0, 0.5);
-    border-radius: 50%;
-    animation: bubbleAnimation 4s infinite;
-}
-
-@keyframes bubbleAnimation {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(1.5);
-        opacity: 0;
-    }
-}
-
-/* Rating Section Styling */
-.rating {
+/* Buttons for Register and Checkout */
+.buttons-container {
     display: flex;
-    justify-content: center;
-    margin-top: 10px;
+    justify-content: flex-start;
+    align-items: center;
+    /*margin-top: 20px; /* Add some space above the buttons */
 }
 
-.rating .fa-star {
-    color: #ffcc00;
-    font-size: 18px;
-    margin-right: 2px;
-}
-
-.rating .filled {
-    color: #ff6f61;
-}
-
-/* Available Inventory Section Styling */
-.inventory {
-    margin-top: 10px;
-    font-size: 16px;
-}
-
-.inventory span {
-    font-weight: bold;
-}
-
-.out-of-stock {
-    color: red;
-    font-weight: bold;
-}
-
-/* Buttons for 'Add to Cart' */
-button:disabled {
-    background: #d3d3d3;
-    cursor: not-allowed;
-}
-
-/* Modal Styling for Forms */
-input[type="text"],
-input[type="password"],
-input[type="number"],
-select {
-    border-radius: 10px;
-    padding: 10px;
-    border: 2px solid #ffcc00;
-    margin: 5px 0;
-    width: calc(100% - 20px);
-}
-
-/* Cart Checkout Modal */
-.cart-section {
-    background-color: #ffffff;
-    padding: 20px;
-    margin-top: 20px;
-    border-radius: 10px;
-}
-
-.cart-section h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
-}
-
-.cart-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-.cart-item button {
-    background: #e8491d;
-    padding: 10px;
+.register-button {
+    background: #ffbb00;
+    padding: 12px 20px;
     border-radius: 20px;
     color: white;
+    font-size: 16px;
     border: none;
+    transition: transform 0.3s;
+    width: 25%; /* Ensure the button doesn't stretch too much */
+    /*margin-left: 50%;*/
+    position: fixed;      /* Fix the position */
+    right: 38%;
+    top: 90%;     
 }
 
-.cart-item button:hover {
+
+.register-button:hover {
+    background: #e8491d;
+    transform: scale(1.05);
+}
+
+.checkout-button {
+    background: #ffcc00;
+    padding: 12px 20px;
+    border-radius: 20px;
+    color: white;
+    font-size: 16px;
+    border: none;
+    transition: transform 0.3s;
+    width: 45%; /* Ensure both buttons fit nicely */
+}
+
+.checkout-button:hover {
     background: #ff6f61;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .course-section {
-        width: calc(50% - 20px); /* 2 courses per row */
-    }
-}
-
-@media (max-width: 480px) {
-    .course-section {
-        width: 100%; /* 1 course per row */
-    }
-
-    .modal-content {
-        width: 80%;
-    }
-
-    .site-name {
-        font-size: 28px;
-    }
+    transform: scale(1.05);
 }

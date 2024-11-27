@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const path = require("path");
+const bodyParser = require("body-parser");
 
 let propertiesReader = require("properties-reader");
 let propertiesPath = path.resolve(__dirname, "demo-db.properties");
@@ -37,8 +38,10 @@ let app = express();
 app.set('json spaces', 3);
 
 app.use(cors());
+//app.options('*', cors());
 app.use(morgan("short"));
 app.use(express.json());
+//app.use(bodyParser.json);
 
 app.param('collectionName', function(req, res, next, collectionName){
     req.collection = db.collection(collectionName);
@@ -49,6 +52,7 @@ app.get('/', function(req, res, next){
     res.send('Select a collection, e.g., /collections/courses');
 });
 
+// Route to fetch all records from a collection
 app.get('/courses', async function(req, res, next){
     try {
         const database = client.db('EdTech');
@@ -62,7 +66,8 @@ app.get('/courses', async function(req, res, next){
     }
 });
 
-app.get('/courses/:max/:sortAspect/:sortOrder', function(req, res, next){
+// Route to fetch records from a collection with limit, sorting, and ordering
+app.get('/collections/:collectionName/:max/:sortAspect/:sortOrder', function(req, res, next){
     const max = parseInt(req.params.max, 10);
     const sortDirection = req.params.sortOrder === "desc" ? -1 : 1;
 
@@ -77,9 +82,10 @@ app.get('/courses/:max/:sortAspect/:sortOrder', function(req, res, next){
         });
 });
 
+// Route to fetch a single record by ID
 app.get('/collections/:collectionName/:id', function(req, res, next){
     try {
-        const objectId = new ObjectId(req.params.id);
+        const objectId = new ObjectId(req.params.id);  // Correctly handle ObjectId
         req.collection.findOne({ _id: objectId }, function(err, result){
             if (err) {
                 return next(err);
@@ -94,32 +100,90 @@ app.get('/collections/:collectionName/:id', function(req, res, next){
     }
 });
 
-app.all("/collections/courses", function(req, res){
-    res.send("The service has been called correctly and it is working");
-    res.json({ result: "OK" });
+// Route to handle POST request for creating a new record in the collection
+
+app.post('/UserData', async (req, res) => {
+    try{
+        const database = client.db("EdTech");
+        const order = database.collection("UserData");
+        const result = await order.insertOne(req.body);
+        res.json(result);
+        console.log("Posted a new order");
+    } catch(error){
+        res.status(500).json({ error: 'Failed to create order' });
+        // process.exit(1);
+    }
+});
+// app.post('/UserData', function(req, res, next){
+    
+//     const database = client.db('EdTech');
+//     const newUser = req.body;
+//     res.send(newUser);
+
+//     // if (!newUser.name || !newUser.phone) {
+//     //     return res.status(400).json({ message: "Name and Phone are required" });
+//     // }
+
+//     database.collection('UserData').insertOne(newUser, function(err, result){
+//         if (err) {
+//             return next(err);
+//         }
+//         res.status(201).json({ message: 'User added successfully' });
+//     });
+// });
+
+// Route to handle PUT request for updating a record in the collection
+app.put('/collections/:collectionName/:id', function(req, res, next){
+    try {
+        const objectId = new ObjectId(req.params.id);  // Handle ObjectId
+        req.collection.updateOne(
+            { _id: objectId },
+            { $set: req.body },
+            function(err, result){
+                if (err) {
+                    return next(err);
+                }
+                if (result.modifiedCount === 0) {
+                    return res.status(404).send("Record not found");
+                }
+                res.json({ message: "Record updated successfully" });
+            }
+        );
+    } catch (e) {
+        return res.status(400).send("Invalid ID format");
+    }
 });
 
-app.post("/", function(req, res){
-    res.send("a POST request? Let's create a new element");
+// Route to handle DELETE request for removing a record from the collection
+app.delete('/collections/:collectionName/:id', function(req, res, next){
+    try {
+        const objectId = new ObjectId(req.params.id);  // Handle ObjectId
+        req.collection.deleteOne({ _id: objectId }, function(err, result){
+            if (err) {
+                return next(err);
+            }
+            if (result.deletedCount === 0) {
+                return res.status(404).send("Record not found");
+            }
+            res.json({ message: "Record deleted successfully" });
+        });
+    } catch (e) {
+        return res.status(400).send("Invalid ID format");
+    }
 });
 
-app.put("/", function(req, res){
-    res.send("OK, let's change an element");
-});
-
-app.delete("/", function(req, res){
-    res.send("Are you sure? Ok, let's delete a record");
-});
-
+// Catch-all for logging incoming requests
 app.use(function(req, res, next){
     console.log("Incoming request", req.url);
     next();
 });
 
+// Catch-all for handling 404 errors
 app.use(function(req, res){
     res.status(404).send("Resource not found!");
 });
 
+// Start the server
 app.listen(3001, () => {
     console.log('Server is running on port 3001');
 });

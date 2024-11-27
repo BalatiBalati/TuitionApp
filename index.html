@@ -23,21 +23,20 @@
                             {{ showCart ? 'Back to Lessons' : 'View Cart' }}
                         </button>
                     </li>
-                    <!-- <li><button v-on:click="showLoginModal">Log In</button></li> -->
-                    <li><button v-on:click="showRegisterModal">Register</button></li>
+                    <!-- Removed Register button from navbar -->
                 </ul>
             </nav>
         </header>
         
         <main>
             <!-- Show Courses or Cart based on showCart flag -->
-            <div class="sorting-options">
+            <div v-if="!showCart" class="sorting-options">
                 <label for="sortAttribute">Sort by:</label>
                 <select id="sortAttribute" v="sortAttribute">
                     <option value="price">Price</option>
                     <option value="rating">Rating</option>
                     <option value="title">Title</option>
-                    <option value="availableInventory">Available Invetory</option>
+                    <option value="availableInventory">Available Inventory</option>
                 </select>
 
                 <label for="sortDirection">Order: </label>
@@ -45,10 +44,10 @@
                     <option value="asc">Ascending</option>
                     <option value="desc">Descending</option>
                 </select>
-
             </div>
 
             <div v-if="!showCart" class="content">
+                
                 <section class="course-section" v-for="course in courses" :key="course.id">
                     <h2 v-text="course.title"></h2>
                     <p><i class="fas fa-book"></i> <strong>Subject:</strong> {{ course.title }}</p>
@@ -75,92 +74,33 @@
 
             <!-- Cart Page -->
             <div v-if="showCart" class="cart-page">
-                <h2>Your Cart</h2>
-                <ul>
-                    <li v-for="(item, index) in cart" :key="item.id">
-                        <span>{{ item.title }}</span> - ${{ item.price }}
-                        <button v-on:click="removeFromCart(index)">Remove</button>
-                    </li>
-                </ul>
-                <h3>Total: ${{ totalCost }}</h3>
-                <button v-on:click="showCheckoutModal" :disabled="!isFormValid" class="checkout-button">
-                    Proceed to Checkout
-                </button>
-            </div>
-
-            <!-- Checkout Modal -->
-            <div v-if="showCheckoutOptions" class="modal">
-                <div class="modal-content">
-                    <span class="close" v-on:click="closeCheckoutModal">&times;</span>
-                    <h2>Checkout</h2>
-                    <p>
-                        <strong>Firstname: </strong>
-                        <input v-model.trim="order.firstName" />
-                    </p>
-                    <p>
-                        <strong>Lastname: </strong>
-                        <input v-model.trim="order.lastName" />
-                    </p>
-                    <p>
-                        <strong>Address: </strong> 
-                        <input v-model.trim="order.address" />
-                    </p>
-                    <p>
-                        <strong>City: </strong> 
-                        <input v-model.trim="order.city" />
-                    </p>
-                    <p>
-                        <strong>State: </strong>
-                        <select v-model="order.state">
-                            <option disabled value="">State</option>
-                            <option v-for="(state, key) in states" v-bind:value="key">
-                                {{ state }}
-                            </option>
-                        </select>
-                    </p>
-                    <p>
-                        <strong>Zip/Postal Code: </strong> <input v-model.number="order.zip" />
-                    </p>
-                    <p>
-                        <input type="checkbox" id="gift" v-model="order.gift" />
-                        <label for="gift">Ship As Gift?</label>
-                    </p>
-                    <p>
-                        <input type="radio" id="home" value="Home" v-model="order.method" />
-                        <label for="home">Home</label>
-                        <input type="radio" id="business" value="Business" v-model="order.method" />
-                        <label for="business">Business</label>
-                    </p>
-                    <h2>Order Information</h2>
-                    <p>Firstname: {{ order.firstName }}</p>
-                    <p>Lastname: {{ order.lastName }}</p>
-                    <p>Address: {{ order.address }}</p>
-                    <p>City: {{ order.city }}</p>
-                    <p>Zip: {{ order.zip }}</p>
-                    <p>State: {{ order.state }}</p>
-                    <button v-on:click="submitForm">Place Order</button>
-                </div>
-            </div>
-
-            <!-- Modal for Login -->
-            <!-- <div v-if="showLogin" class="modal">
-                <div class="modal-content">
-                    <span class="close" v-on:click="showLogin = false">&times;</span>
-                    <h2>Log In</h2>
-                    <input type="text" placeholder="Email" v-model="loginEmail" />
-                    <input type="password" placeholder="Password" v-model="loginPassword" />
-                    <button v-on:click="login">Log In</button>
-                </div>
-            </div> -->
-
-            <!-- Modal for Register (Only Name and Phone fields) -->
-            <div v-if="showRegister" class="modal">
-                <div class="modal-content">
-                    <span class="close" v-on:click="showRegister = false">&times;</span>
+                
+                <div class="modal">
                     <h2>Register</h2>
-                    <input type="text" placeholder="Name" v-model="registerName" />
-                    <input type="text" placeholder="Phone" v-model="registerPhone" />
-                    <button v-on:click="register">Register</button>
+                    <input type="text" placeholder="Name" v-model.trim="registerName" />
+                    <input type="text" placeholder="Phone" v-model.trim="registerPhone" />
+                    <input type="text" placeholder="Address" v-model.trim="order.Address" />
+                    <input type="text" placeholder="City" v-model.trim="order.City" />
+                    <button class="register-button" v-on:click="register">Checkout</button>
+                </div>
+
+                <div class="left-align-container">
+                    <h2>Your Cart</h2>
+                    <ul>
+                        <li v-for="(item, index) in cart" :key="item.id">
+                            <span>{{ item.title }}</span> - ${{ item.price }}
+                            <button v-on:click="removeFromCart(index)">Remove</button>
+                        </li>
+                    </ul>
+                    <h3>Total: ${{ totalCost }}</h3>
+                </div>
+
+                <div class="modal-content">
+                    <h2>Order Information</h2>
+                    <p>Fullname: {{ registerName }}</p>
+                    <p>Phone No: {{ registerPhone }}</p>
+                    <p>Address: {{ order.Address }}</p>
+                    <p>City: {{ order.City }}</p>
                 </div>
             </div>
         </main>
@@ -175,34 +115,12 @@
                 cart: [],
                 showCart: false,
                 showCheckoutOptions: false,
-                order: { firstName: '', lastName: '', address: '', city: '', state: '', zip: '', method: '', gift: false },
-                states: { CA: 'California', NY: 'New York', TX: 'Texas' },
-                showLogin: false,
+                order: { PhoneNo: '', Address: '', City: '' },
                 showRegister: false,
-                loginEmail: '',
-                loginPassword: '',
                 registerName: '',
                 registerPhone: ''
             },
             computed: {
-                sortedCourse(){
-                    return this.course.slice().sort((a, b)=>{
-                        let comparison = 0;
-
-                        if (this.sortAttribute === 'price') {
-                            comparison = a.price - b.price;
-                        } else if (this.sortAttribute === 'rating') {
-                            comparison = a.rating - b.rating;
-                        } else if (this.sortAttribute === 'title') {
-                            comparison = a.title.localeCompare(b.title);
-                        } else if (this.sortAttribute === 'availableInventory') {
-                            comparison = a.availableInventory - b.availableInventory;
-                        }
-
-                        return this.sortDirection === 'desc' ? -comparison : comparison;
-                    });
-                },
-
                 cartItemCount(){
                     return this.cart.length;
                 },
@@ -211,24 +129,27 @@
                     return this.cart.reduce((total, item) => total + item.price, 0);
                 },
 
-                isNameValid() {
-                    const nameRegex = /^[a-zA-Z]+$/;
-                    return nameRegex.test(this.registerName);  // Check if name is only letters
-                },
-                isPhoneValid() {
-                    const phoneRegex = /^[0-9]+$/;
-                    return phoneRegex.test(this.registerPhone);  // Check if phone is only numbers
-                },
-                isFormValid() {
-                    return this.isNameValid && this.isPhoneValid;  // Both Name and Phone must be valid
-                },
-                cartItemCount() {
-                    return this.cart.length;
-                },
-                totalCost() {
-                    return this.cart.reduce((total, item) => total + item.price, 0);
+                sortedCourses() {
+                    return this.courses.slice().sort((a, b) => {
+                        let comparison = 0;
+
+                        // Check which attribute to sort by
+                        if (this.sortAttribute === 'price') {
+                            comparison = a.price - b.price; // Numerical sorting for price
+                        } else if (this.sortAttribute === 'rating') {
+                            comparison = a.rating - b.rating; // Numerical sorting for rating
+                        } else if (this.sortAttribute === 'availableInventory') {
+                            comparison = a.availableInventory - b.availableInventory; // Numerical sorting for availableInventory
+                        } else if (this.sortAttribute === 'location') {
+                            comparison = a.location.localeCompare(b.location); // Alphabetical sorting for location
+                        }
+
+                        // Return in ascending or descending order
+                        return this.sortDirection === 'desc' ? -comparison : comparison;
+                    });
                 }
             },
+
             created: function(){
                 fetch("http://localhost:3001/courses").then(
                     function(response){
@@ -240,51 +161,40 @@
                     }
                 );
             },
+
             methods: {
                 addToCart(course) {
                     if (course.availableInventory > 0) {
                         this.cart.push(course);
-                        course.availableInventory--;  // Decrease available seats when added to the cart
+                        course.availableInventory--;
                     }
-                },
-                closeCheckoutModal() {
-                    this.showCheckoutOptions = false;
-                },
-                showCheckoutModal() {
-                    this.showCheckoutOptions = true;
-                },
-                submitForm() {
-                    alert('Order Submitted!');
-                    this.showCheckoutOptions = false;
-                },
-                toggleCart() {
-                    this.showCart = !this.showCart;
                 },
                 removeFromCart(index) {
-                    const course = this.cart.splice(index, 1)[0]; // Remove from cart
-                    const courseInList = this.courses.find(c => c.id === course.id);
-                    if (courseInList) {
-                        courseInList.availableInventory++; // Re-add to course list and increase available seats
-                    }
+                    this.cart[index].availableInventory++;
+                    this.cart.splice(index, 1);
                 },
-                showLoginModal() {
-                    this.showLogin = true;
+
+                toggleCart(){
+                    this.showCart = !this.showCart;
                 },
-                showRegisterModal() {
-                    this.showRegister = true;
+
+                showCheckoutModal(){
+                    this.showCheckoutOptions = !this.showCheckoutOptions;
                 },
-                login() {
-                    alert(`Logged in as ${this.loginEmail}`);
-                    this.showLogin = false;
+
+                submitForm(){
+                    alert("Order Submitted!");
+                    this.showCheckoutOptions = false;
+                    this.cart = [];
                 },
-                register() {
-                    alert(`Registered as ${this.registerName} with phone ${this.registerPhone}`);
+
+                showRegisterModal(){
+                    this.showRegister = !this.showRegister;
+                },
+
+                register(){
+                    alert(`Thank you ${this.registerName} for registering!`);
                     this.showRegister = false;
-                }
-            }, 
-            computed: {
-                cartItemCount(){
-                    return this.cart.length;
                 }
             }
         });
