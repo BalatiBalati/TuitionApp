@@ -32,11 +32,11 @@
             <!-- Show Courses or Cart based on showCart flag -->
             <div v-if="!showCart" class="sorting-options">
                 <label for="sortAttribute">Sort by:</label>
-                <select id="sortAttribute" v="sortAttribute">
+                <select id="sortAttribute" v-model="sortAttribute">
+                    <option value="title">Title</option>
                     <option value="price">Price</option>
                     <option value="rating">Rating</option>
-                    <option value="title">Title</option>
-                    <option value="rating">Rating</option>
+                    <option value="location">Location</option>
                     <option value="availableInventory">Available Inventory</option>
                 </select>
 
@@ -49,10 +49,10 @@
 
             <div v-if="!showCart" class="content">
                 
-                <section class="course-section" v-for="course in courses" :key="course.id">
+                <section class="course-section" v-for="course in sortedCourses" :key="course.id">
                     <h2 v-text="course.title"></h2>
                     
-                    <figure><img class=".course-image" v-bind:src="'https://tuitionapp-backend.onrender.com' + course.image" :alt="course.title + ' Image'"   width="200" height="200"/></figure>
+                    <figure><img class=".course-image" v-bind:src="'https://tuitionapp-backend.onrender.com' + course.image" :alt="course.title + ' Image'"   width="500" height="500"/></figure>
                     <p><i class="fas fa-book"></i> <strong>Subject:</strong> {{ course.title }}</p>
                     <p><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> {{ course.location }}</p>
                     <p><i class="fas fa-dollar-sign"></i> <strong>Price:</strong> ${{ course.price }}</p>
@@ -72,6 +72,8 @@
                     <!-- Add to Cart button -->
                     <button v-on:click="addToCart(course)" v-if="course.availableInventory > 0">Add to Cart</button>
                     <button disabled v-else>Out of stock</button>
+
+
                 </section>
             </div>
 
@@ -148,7 +150,9 @@
                 order: { PhoneNo: '', Address: '', City: '' },
                 showRegister: false,
                 registerName: '',
-                registerPhone: ''
+                registerPhone: '',
+                sortDirection: 'asc',
+                sortAttribute: 'title'
             },
             computed: {
                 cartItemCount(){
@@ -158,16 +162,27 @@
                     return this.cart.reduce((total, item) => total + item.price, 0);
                 },
 
-                filteredCourses() {
-                    return this.courses.filter(course => {
-                        const searchQueryLower = this.searchQuery.toLowerCase();
-                        return (
-                            course.title.toLowerCase().includes(searchQueryLower) ||
-                            course.location.toLowerCase().includes(searchQueryLower) ||
-                            course.price.toString().includes(searchQueryLower)
-                        );
-                    });
-                },
+                // filteredCourses() {
+                //     return this.courses.slice().sort((a, b) => {
+                //         let comparison = 0;
+
+                //         // Check which attribute to sort by
+                //         if (this.sortAttribute === 'price') {
+                //             comparison = a.price - b.price; // Numerical sorting for price
+                //         } else if (this.sortAttribute === 'rating') {
+                //             comparison = a.rating - b.rating; // Numerical sorting for rating
+                //         } else if (this.sortAttribute === 'availableInventory') {
+                //             comparison = a.availableInventory - b.availableInventory; // Numerical sorting for availableInventory
+                //         } else if (this.sortAttribute === 'title') {
+                //             comparison = a.title.localeCompare(b.title); // Alphabetical sorting for title
+                //         } else if (this.sortAttribute === 'location') {
+                //             comparison = a.location.localeCompare(b.location); // Alphabetical sorting for location
+                //         }
+
+                //         // Return in ascending or descending order
+                //         return this.sortDirection === 'desc' ? -comparison : comparison;
+                //     });
+                // },
 
                 totalCost(){
                     return this.cart.reduce((total, item) => total + item.price, 0);
@@ -180,14 +195,15 @@
                         // Check which attribute to sort by
                         if (this.sortAttribute === 'price') {
                             comparison = a.price - b.price; // Numerical sorting for price
+                        } else if (this.sortAttribute === 'title') {
+                            comparison = a.title < b.title ? -1 : a.title > b.title ? 1 : 0; // Alphabetical sorting for title
                         } else if (this.sortAttribute === 'rating') {
                             comparison = a.rating - b.rating; // Numerical sorting for rating
                         } else if (this.sortAttribute === 'availableInventory') {
-                            comparison = a.availableInventory - b.availableInventory; // Numerical sorting for availableInventory
+                            comparison = a.availableInventory - b.availableInventory; // ASCII Values Numerical sorting for availableInventory
                         } else if (this.sortAttribute === 'location') {
-                            comparison = a.location.localeCompare(b.location); // Alphabetical sorting for location
+                            comparison = a.location < b.location ? -1 : a.location > b.location ? 1 : 0;
                         }
-
                         // Return in ascending or descending order
                         return this.sortDirection === 'desc' ? -comparison : comparison;
                     });
