@@ -20,6 +20,13 @@ header {
     color: #fff;
 }
 
+.course-section img {
+    width: 90%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
 nav ul {
     list-style: none;
     padding: 0;

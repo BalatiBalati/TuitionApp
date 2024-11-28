@@ -51,7 +51,8 @@
                 
                 <section class="course-section" v-for="course in courses" :key="course.id">
                     <h2 v-text="course.title"></h2>
-                    <figure><img v-bind:src="'https://tuitionapp-backend.onrender.com' + course.image" :alt="course.title + ' Image'"   width="1280" height="200"/></figure>
+                    
+                    <figure><img class=".course-image" v-bind:src="'https://tuitionapp-backend.onrender.com' + course.image" :alt="course.title + ' Image'"   width="200" height="200"/></figure>
                     <p><i class="fas fa-book"></i> <strong>Subject:</strong> {{ course.title }}</p>
                     <p><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> {{ course.location }}</p>
                     <p><i class="fas fa-dollar-sign"></i> <strong>Price:</strong> ${{ course.price }}</p>
