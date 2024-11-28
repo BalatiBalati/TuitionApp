@@ -18,8 +18,8 @@
                 <ul>
                     <li>
                         <!-- Toggle Cart Button -->
-                        <button v-on:click="toggleCart">
-                            {{ cartItemCount }} <span class="fas fa-cart-plus"></span> 
+                        <button v-on:click="toggleCart" :disabled="cartItemCount === 0">
+                            {{ getTotalQuantity() }} <span class="fas fa-cart-plus"></span> 
                             {{ showCart ? 'Back to Lessons' : 'View Cart' }}
                         </button>
                     </li>
@@ -86,27 +86,25 @@
                     <input type="text" placeholder="Phone" v-model.trim="registerPhone" />
                     <input type="text" placeholder="Address" v-model.trim="order.Address" />
                     <input type="text" placeholder="City" v-model.trim="order.City" />
-                    <button class="register-button" v-on:click="register">Checkout</button>
+                    <button class="register-button" v-on:click="register" :disabled="!isFormValid">Checkout</button>
                 </div>
 
                 <div class="left-align-container">
-                    <h2>Your Cart</h2>
-                    <ul>
-                        <!-- <li v-for="(item, index) in cart" :key="item.id">
-                            <span>{{ item.title }}</span> - ${{ item.price }}
-                            <button v-on:click="removeFromCart(index)">Remove</button>
-                        </li> -->
-                    </ul>
+                    <h2>Your Cart  (Total: ${{totalCost}})</h2>
+               
                     <div v-if="cart.length > 0" class="contents">
                         <section class="cart-item" v-for="(item, index) in cart" :key="item.id">
                             <!-- Item Title -->
                             <h2 v-text="item.title"></h2>
+
+                            <figure><img class=".course-image" v-bind:src="'https://tuitionapp-backend.onrender.com' + item.image" :alt="item.title + ' Image'"   width="200" height="200"/></figure>
                    
                             <!-- Item Price -->
                             <p><i class="fas fa-dollar-sign"></i> <strong>Price:</strong> ${{ item.price }}</p>
-                    
-                            <!-- Item Quantity (if applicable) -->
-                            <p v-if="item.quantity"><i class="fas fa-cogs"></i> <strong>Quantity:</strong> {{ item.quantity }}</p>
+
+                            <p><i class="fas fa-map-marker-alt"></i> <strong>Price:</strong> ${{ item.location }}</p>
+
+                            <p><i class="fas fa-cogs"></i> <strong>Quantity:</strong> {{ item.quantity }}</p>
                     
                             <!-- Item Removal Button -->
                             <button v-on:click="removeFromCart(index)" class="remove-btn">
@@ -117,13 +115,12 @@
                             <p v-if="item.availableInventory <= 0">
                                 <i class="fas fa-exclamation-circle"></i> <strong>Out of Stock</strong>
                             </p>
+
                         </section>
                     </div>
                     
                     <!-- Empty Cart Message -->
                     <p v-else>Your cart is empty</p>
-                    
-                    <h3>Total: ${{ totalCost }}</h3>
                 </div>
 
                 <div class="modal-content">
@@ -155,34 +152,27 @@
                 sortAttribute: 'title'
             },
             computed: {
+                
+                isFormValid() {
+                    const nameRegex = /^[a-zA-Z]+$/;
+                    const phoneRegex = /^[0-9]+$/;
+                    return (
+                        this.registerName.trim() !== '' && 
+                        nameRegex.test(this.registerName) &&
+                        this.registerPhone.trim() !== '' &&
+                        phoneRegex.test(this.registerPhone) &&
+                        this.order.Address.trim() !== '' &&
+                        this.order.City.trim() !== ''
+                    );
+                },
+                
+    
                 cartItemCount(){
                     return this.cart.length;
                 },
                 totalCost(){
                     return this.cart.reduce((total, item) => total + item.price, 0);
                 },
-
-                // filteredCourses() {
-                //     return this.courses.slice().sort((a, b) => {
-                //         let comparison = 0;
-
-                //         // Check which attribute to sort by
-                //         if (this.sortAttribute === 'price') {
-                //             comparison = a.price - b.price; // Numerical sorting for price
-                //         } else if (this.sortAttribute === 'rating') {
-                //             comparison = a.rating - b.rating; // Numerical sorting for rating
-                //         } else if (this.sortAttribute === 'availableInventory') {
-                //             comparison = a.availableInventory - b.availableInventory; // Numerical sorting for availableInventory
-                //         } else if (this.sortAttribute === 'title') {
-                //             comparison = a.title.localeCompare(b.title); // Alphabetical sorting for title
-                //         } else if (this.sortAttribute === 'location') {
-                //             comparison = a.location.localeCompare(b.location); // Alphabetical sorting for location
-                //         }
-
-                //         // Return in ascending or descending order
-                //         return this.sortDirection === 'desc' ? -comparison : comparison;
-                //     });
-                // },
 
                 totalCost(){
                     return this.cart.reduce((total, item) => total + item.price, 0);
@@ -223,17 +213,51 @@
             },
 
             methods: {
+
                 addToCart(course) {
                     if (course.availableInventory > 0) {
-                        this.cart.push(course);
+                        // Check if the item already exists in the cart
+                        const existingCourse = this.cart.find(item => item._id === course._id);
+
+                        if (existingCourse) {
+                            // If it exists, increment the quantity by 1
+                            existingCourse.quantity += 1;
+                        } else {
+                            // If it doesn't exist, add the item with an initial quantity of 1
+                            let item = { ...course, quantity: 1 };
+                            this.cart.push(item);
+                        }
+
+                        // Decrement the available inventory
                         course.availableInventory--;
+                        this.getTotalQuantity();
                     }
                 },
                 removeFromCart(index) {
-                    this.cart[index].availableInventory++;
-                    this.cart.splice(index, 1);
-                },
+                    // Find the item in the cart using the index
+                    const item = this.cart[index];
 
+                    // Update the inventory of the course in the courses array
+                    const course = this.courses.find(course => course._id === item._id);
+                    if (course) {
+                        // Increment availableInventory since we are removing an item from the cart
+                        course.availableInventory += 1;
+                        
+                        // If the quantity is greater than 1, decrement the quantity
+                        if (item.quantity > 1) {
+                            item.quantity -= 1;
+                        } else {
+                            // If the quantity is 1, remove the item from the cart
+                            this.cart = this.cart.filter((item, idx) => idx !== index);
+                        }
+                    }
+                    if (this.cart.length === 0) {
+                        this.showCart = false;
+                    }
+                },
+                getTotalQuantity() {
+                    return this.cart.reduce((total, item) => total + item.quantity, 0);
+                },
                 toggleCart(){
                     this.showCart = !this.showCart;
                 },
@@ -247,6 +271,11 @@
                     alert("Order Submitted!");
                     this.showCheckoutOptions = false;
                     this.cart = [];
+                },
+
+                mounted() {
+                    // this.combineCartItems(); // Combine items when the component is mounted
+                    console.log('Mounted and cart is combined:', this.cart);
                 },
 
                 async updateInventory(course) {

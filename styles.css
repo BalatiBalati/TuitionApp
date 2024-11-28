@@ -62,12 +62,13 @@ nav button:hover {
     flex-direction: column;
     position: fixed;
     top: 13.5%;
-    align-items: flex-start; /* Align the content to the left */
-    margin-left: 20px; /* Optional: Add spacing from the left side of the window */
+    height: 87.5%; /* Take up the full height of the viewport */
+    overflow-y: auto; /* Enable vertical scrolling */
 }
 
 .left-align-container h2 {
     margin: 0; /* Optional: Remove default margin */
+    
 }
 
 .contents {
