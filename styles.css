@@ -48,7 +48,7 @@ nav button:hover {
     display: flex;
     flex-direction: column;
     position: fixed;
-    top: 28%;
+    top: 13.5%;
     align-items: flex-start; /* Align the content to the left */
     margin-left: 20px; /* Optional: Add spacing from the left side of the window */
 }
@@ -57,13 +57,67 @@ nav button:hover {
     margin: 0; /* Optional: Remove default margin */
 }
 
-
+.contents {
+    padding: 20px;
+    display: flex;
+    flex-direction: column; /* Stack items vertically (one per row) */
+    gap: 20px; /* Space between items */
+}
 
 .content {
     padding: 20px;
     display: flex;
     flex-wrap: wrap;
 }
+
+/* Each cart item section */
+.cart-item {
+    background: #ffffff;
+    margin: 10px 0; /* Vertical margin to separate items */
+    padding: 15px;
+    border-radius: 20px;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Ensure each item takes full width of the container */
+    box-sizing: border-box;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.cart-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Add to Cart and Remove Button Styling */
+.remove-btn {
+    background-color: #f44336;
+    color: #ffffff;
+    border: none;
+    padding: 10px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: background-color 0.3s;
+}
+
+.remove-btn:hover {
+    background-color: #d32f2f;
+}
+
+/* Out of stock message styling */
+.cart-item p {
+    color: #333;
+    font-size: 14px;
+}
+
+.cart-item p strong {
+    font-weight: bold;
+}
+
+.cart-item .out-of-stock {
+    color: red;
+    font-weight: bold;
+}
+
 
 .course-section {
     background: #ffffff;
@@ -82,7 +136,7 @@ nav button:hover {
 }
 
 .course-section img {
-    max-width: 100%;
+    max-width: 30%;
     border-radius: 10px;
 }
 
@@ -120,15 +174,15 @@ button:hover {
 
 .modal-content {
     background: #ffffff;
-    padding: 15px;
+    padding: 25px;
     border-radius: 20px;
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
     width: 30%;           /* Set the width of the modal content */
     max-width: 300px;     /* Optional: set a max-width */
     margin: 20px;         /* Add margin around the box */
     position: fixed;      /* Fix the position */
-    top: 25%;             /* Place it a bit down from the top */
-    right: 1%;            /* Align it to the right of the window */
+    top: 12%;             /* Place it a bit down from the top */
+    right: 5%;            /* Align it to the right of the window */
 }
 
 @keyframes fadeIn {
@@ -161,6 +215,22 @@ select {
 input[type="checkbox"],
 input[type="radio"] {
     transform: scale(1.5); /* Make checkboxes/radios larger */
+}
+
+.rating {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.rating .fa-star {
+    color: #ffcc00;
+    font-size: 18px;
+    margin-right: 2px;
+}
+
+.rating .filled {
+    color: #ff6f61;
 }
 
 /* Buttons for Register and Checkout */

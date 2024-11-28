@@ -36,6 +36,7 @@
                     <option value="price">Price</option>
                     <option value="rating">Rating</option>
                     <option value="title">Title</option>
+                    <option value="rating">Rating</option>
                     <option value="availableInventory">Available Inventory</option>
                 </select>
 
@@ -50,6 +51,7 @@
                 
                 <section class="course-section" v-for="course in courses" :key="course.id">
                     <h2 v-text="course.title"></h2>
+                    <figure><img v-bind:src="'https://tuitionapp-backend.onrender.com' + course.image" :alt="course.title + ' Image'"   width="200" height="200"/></figure>
                     <p><i class="fas fa-book"></i> <strong>Subject:</strong> {{ course.title }}</p>
                     <p><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> {{ course.location }}</p>
                     <p><i class="fas fa-dollar-sign"></i> <strong>Price:</strong> ${{ course.price }}</p>
@@ -87,11 +89,37 @@
                 <div class="left-align-container">
                     <h2>Your Cart</h2>
                     <ul>
-                        <li v-for="(item, index) in cart" :key="item.id">
+                        <!-- <li v-for="(item, index) in cart" :key="item.id">
                             <span>{{ item.title }}</span> - ${{ item.price }}
                             <button v-on:click="removeFromCart(index)">Remove</button>
-                        </li>
+                        </li> -->
                     </ul>
+                    <div v-if="cart.length > 0" class="contents">
+                        <section class="cart-item" v-for="(item, index) in cart" :key="item.id">
+                            <!-- Item Title -->
+                            <h2 v-text="item.title"></h2>
+                   
+                            <!-- Item Price -->
+                            <p><i class="fas fa-dollar-sign"></i> <strong>Price:</strong> ${{ item.price }}</p>
+                    
+                            <!-- Item Quantity (if applicable) -->
+                            <p v-if="item.quantity"><i class="fas fa-cogs"></i> <strong>Quantity:</strong> {{ item.quantity }}</p>
+                    
+                            <!-- Item Removal Button -->
+                            <button v-on:click="removeFromCart(index)" class="remove-btn">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
+                    
+                            <!-- Stock Status (if applicable) -->
+                            <p v-if="item.availableInventory <= 0">
+                                <i class="fas fa-exclamation-circle"></i> <strong>Out of Stock</strong>
+                            </p>
+                        </section>
+                    </div>
+                    
+                    <!-- Empty Cart Message -->
+                    <p v-else>Your cart is empty</p>
+                    
                     <h3>Total: ${{ totalCost }}</h3>
                 </div>
 
@@ -114,6 +142,7 @@
                 courses: [],
                 cart: [],
                 showCart: false,
+                searchQuery: '',
                 showCheckoutOptions: false,
                 order: { PhoneNo: '', Address: '', City: '' },
                 showRegister: false,
@@ -123,6 +152,20 @@
             computed: {
                 cartItemCount(){
                     return this.cart.length;
+                },
+                totalCost(){
+                    return this.cart.reduce((total, item) => total + item.price, 0);
+                },
+
+                filteredCourses() {
+                    return this.courses.filter(course => {
+                        const searchQueryLower = this.searchQuery.toLowerCase();
+                        return (
+                            course.title.toLowerCase().includes(searchQueryLower) ||
+                            course.location.toLowerCase().includes(searchQueryLower) ||
+                            course.price.toString().includes(searchQueryLower)
+                        );
+                    });
                 },
 
                 totalCost(){
@@ -151,7 +194,7 @@
             },
 
             created: function(){
-                fetch("http://localhost:3001/courses").then(
+                fetch("https://tuitionapp-backend.onrender.com/courses").then(
                     function(response){
                         response.json().then(
                             function(json){
@@ -177,6 +220,7 @@
                 toggleCart(){
                     this.showCart = !this.showCart;
                 },
+                
 
                 showCheckoutModal(){
                     this.showCheckoutOptions = !this.showCheckoutOptions;
@@ -188,14 +232,91 @@
                     this.cart = [];
                 },
 
+                async updateInventory(course) {
+                    try {
+                        const response = await fetch('https://tuitionapp-backend.onrender.com/UpdatePrograms', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                courseId: course._id,
+                                availableInventory: course.availableInventory,  // Decrement inventory by 1
+                                
+                            }),
+                            
+                        });
+
+                        alert("Updated courses");
+
+                        if (!response.ok) {
+                            
+                            throw new Error('Failed to update inventory');
+                            alert("Response not okay ");
+                        }
+
+                        const result = await response.json();
+                        alert("Sent response");
+                        console.log('Inventory updated for course:', result);
+
+                    } catch (error) {
+                        console.error('Error updating inventory:', error);
+                        alert('Failed to update inventory for some courses');
+                    }
+                },
+
                 showRegisterModal(){
                     this.showRegister = !this.showRegister;
                 },
 
-                register(){
-                    alert(`Thank you ${this.registerName} for registering!`);
-                    this.showRegister = false;
+                async register() {
+                    const userData = {
+                        name: this.registerName,
+                        phone: this.registerPhone
+                    };
+
+                    try {
+                        // Step 1: Make the POST request to register the user
+                        const response = await fetch('https://tuitionapp-backend.onrender.com/UserData', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(userData),
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Failed to register');
+                        }
+
+                        const result = await response.json();
+                        console.log('Registration Successful', result);
+                        alert(`Registered successfully as ${this.registerName} with phone ${this.registerPhone}`);
+                        
+                        // Step 2: Track processed courses using a Set to ensure we only update each course once
+                        const processedCourses = new Set();
+
+                        // Iterate through the cart, and call `updateInventory` only once per unique course
+                        for (const course of this.cart) {
+                            if (!processedCourses.has(course._id)) {
+                                // Mark the course as processed by adding its _id to the set
+                                processedCourses.add(course._id);
+
+                                // Call the `updateInventory` function for this unique course
+                                await this.updateInventory(course);
+                            }
+                        }
+
+                        // Step 3: Clear the cart after registration and inventory update
+                        this.cart = [];
+                        this.showCart = false;
+
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Registration failed!');
+                    }
                 }
+
             }
         });
     </script>
