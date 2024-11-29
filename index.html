@@ -224,6 +224,8 @@
                             existingCourse.quantity += 1;
                         } else {
                             // If it doesn't exist, add the item with an initial quantity of 1
+                            // Object.assign() is used to copy all properties from course into a new object ({})
+                            // Copy all properties from `course` to a new object
                             let item = { ...course, quantity: 1 };
                             this.cart.push(item);
                         }
@@ -255,7 +257,14 @@
                         this.showCart = false;
                     }
                 },
+
+                 // Use the `reduce()` method to sum up the quantities of all items in the cart.
+                // `total` is the accumulator that stores the running total of quantities.
+                // `item` is the current item being processed in the `this.cart` array.
+                // For each item, its `quantity` is added to `total`.
+                // The `0` at the end initializes the accumulator to 0, ensuring the sum starts from zero.
                 getTotalQuantity() {
+
                     return this.cart.reduce((total, item) => total + item.quantity, 0);
                 },
                 toggleCart(){
@@ -310,7 +319,7 @@
                         phone: this.registerPhone,
                         programs: this.cart.map(item => ({
                             _id: item._id,
-                            quantity: item.quantity
+                            title: item.title
                     }))};
 
                     try {
