@@ -273,32 +273,22 @@
                     this.cart = [];
                 },
 
-                mounted() {
-                    // this.combineCartItems(); // Combine items when the component is mounted
-                    console.log('Mounted and cart is combined:', this.cart);
-                },
-
-                async updateInventory(course) {
+                async updateInventory(item) {
                     try {
+                        console.log(item._id);
                         const response = await fetch('https://tuitionapp-backend.onrender.com/UpdatePrograms', {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json',
                             },
                             body: JSON.stringify({
-                                courseId: course._id,
-                                availableInventory: course.availableInventory,  // Decrement inventory by 1
-                                
+                                courseId: item._id,
+                                availableInventory: item.availableInventory - item.quantity, 
                             }),
-                            
                         });
 
-                        alert("Updated courses");
-
                         if (!response.ok) {
-                            
                             throw new Error('Failed to update inventory');
-                            alert("Response not okay ");
                         }
 
                         const result = await response.json();
@@ -338,19 +328,10 @@
                         const result = await response.json();
                         console.log('Registration Successful', result);
                         alert(`Registered successfully as ${this.registerName} with phone ${this.registerPhone}`);
-                        
-                        // Step 2: Track processed courses using a Set to ensure we only update each course once
-                        const processedCourses = new Set();
 
                         // Iterate through the cart, and call `updateInventory` only once per unique course
-                        for (const course of this.cart) {
-                            if (!processedCourses.has(course._id)) {
-                                // Mark the course as processed by adding its _id to the set
-                                processedCourses.add(course._id);
-
-                                // Call the `updateInventory` function for this unique course
-                                await this.updateInventory(course);
-                            }
+                        for (const item of this.cart) {
+                            await this.updateInventory(item);
                         }
 
                         // Step 3: Clear the cart after registration and inventory update
