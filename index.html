@@ -308,8 +308,11 @@
                 async register() {
                     const userData = {
                         name: this.registerName,
-                        phone: this.registerPhone
-                    };
+                        phone: this.registerPhone,
+                        programs: this.cart.map(item => ({
+                            _id: item._id,
+                            quantity: item.quantity
+                    }))};
 
                     try {
                         // Step 1: Make the POST request to register the user
