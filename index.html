@@ -319,7 +319,8 @@
                         phone: this.registerPhone,
                         programs: this.cart.map(item => ({
                             _id: item._id,
-                            title: item.title
+                            title: item.title,
+                            availableInventory: item.availableInventory
                     }))};
 
                     try {
