@@ -242,3 +242,63 @@ select {
     background: #ef6c00;
     transform: scale(1.05);
 }
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .left-align-container {
+        position: static;
+        height: auto;
+        border-right: none;
+        box-shadow: none;
+    }
+
+    .course-section {
+        width: calc(50% - 20px);
+    }
+
+    .modal {
+        left: 10%;
+        width: 80%;
+    }
+}
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    nav ul {
+        flex-direction: column;
+        margin-top: 10px;
+    }
+
+    nav ul li {
+        margin-left: 0;
+        margin-bottom: 10px;
+    }
+
+    .course-section {
+        width: calc(100% - 20px);
+    }
+
+    .modal {
+        left: 5%;
+        width: 90%;
+    }
+}
+
+@media (max-width: 480px) {
+    .site-name {
+        font-size: 20px;
+    }
+
+    nav button {
+        padding: 8px 15px;
+        font-size: 12px;
+    }
+
+    .modal {
+        top: 5%;
+    }
+}
