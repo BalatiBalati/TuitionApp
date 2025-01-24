@@ -107,13 +107,20 @@ nav button:hover {
     font-weight: bold;
 }
 
+.course-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px;
+}
+
 .course-section {
     background: #ffffff;
     margin: 10px;
     padding: 15px;
     border-radius: 12px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: calc(100% - 40px); /* Stretch across horizontal axis with margin */
+    width: calc(25% - 20px); /* Four courses per row */
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
@@ -253,7 +260,7 @@ select {
     }
 
     .course-section {
-        width: calc(50% - 20px);
+        width: calc(50% - 20px); /* Two courses per row */
     }
 
     .modal {
@@ -279,7 +286,7 @@ select {
     }
 
     .course-section {
-        width: calc(100% - 20px);
+        width: calc(100% - 20px); /* Single course per row */
     }
 
     .modal {
